@@ -59,6 +59,8 @@ dseg SEGMENT PARA 'DATA'
 	Erro_Open      	db      'Erro ao tentar iniciar o jogo$'
 	FichTabela      db      'PAINEL.txt',0
 	FichTop10       db      'TOP10.txt',0
+	Player_Won      db      'WINNER.txt',0
+	Jogo_Acabou     db      'LOSER.txt'
 	
 	handleFich 		dw      0
 	carFich			db      ?
@@ -191,7 +193,7 @@ cseg segment para public 'code'
 		CALL LE_MENU
 		
 		
-		
+;********************************************************************************		
 		
 		
 	TOP10:
@@ -211,27 +213,26 @@ cseg segment para public 'code'
 	main endp
 	
 	
-	
 ;********************************************************************************
-;   IMP_FICH
+
 		
 	IMP_FICH proc:
         mov ah,3dh
 		mov al,0
 		int 21h
-		jc erro_abrir
+		jc ERRO_ABRIR
 		mov handleFich,ax
-		jmp ler_ciclo
+		jmp LER_CICLO
 		
 		
-	erro_abrir:
+	ERRO_ABRIR:
 	    mov ah,09h
 		lea dx,msgErrorOpen  
 		int 21h
 		jmp sai_f
 		
 	
-	ler_ciclo:
+	LER_CICLO:
         mov ah,3fh
         mov     bx,handleFich
         mov     cx,1
@@ -239,31 +240,31 @@ cseg segment para public 'code'
         int     21h
 		jc		erro_ler
 		cmp		ax,0		
-		je		fecha_ficheiro
+		je		FECHA_FICHEIRO
         mov     ah,02h
 		mov		dl,carFich
 		int		21h
 		jmp		ler_ciclo		
 		
 		
-	erro_ler:
+	ERRO_LER:
 	    mov     ah,09h
         lea     dx,msgErrorRead
         int     21h
 		
 		
-	fecha_ficheiro:
+	FECHA_FICHEIRO:
         mov     ah,3eh
         mov     bx,handleFich
         int     21h
-        jnc     sai_f
+        jnc     SAI
 
         mov     ah,09h
         lea     dx,msgErrorCloseRead
         Int     21h
 		
 		
-	sai_f:
+	SAI_F:
 	    RET
 		
 		
@@ -272,7 +273,7 @@ cseg segment para public 'code'
 
 ;********************************************************************************
 
-    Ler_TEMPO proc
+    LER_TEMPO proc
 	    PUSH AX
 		PUSH BX
 		PUSH CX
@@ -301,30 +302,30 @@ cseg segment para public 'code'
 		POP BX
 		POP AX
  		RET 
-Ler_TEMPO   endp
+    LER_TEMPO   endp
+	
+	
+;********************************************************************************
         	
 		
-		
-	
-	
-	
-	apaga_ecran	proc
+	APAGA_ECRAN	proc
 		mov		ax,0B800h
 		mov		es,ax
 		xor		bx,bx
 		mov		cx,25*80
 		
-    apaga:	
+    APAGA:	
 	    mov		byte ptr es:[bx],' '
 		mov		byte ptr es:[bx+1],7
 		inc		bx
 		inc 	bx
-		loop	apaga
+		loop	APAGA
 		ret
-    apaga_ecran	endp
+    APAGA_ECRAN	endp
 
 
-
+;********************************************************************************
+	
 	
 	END_GAME proc
 		call		apaga_ecran
@@ -333,7 +334,10 @@ Ler_TEMPO   endp
 		INT			21H   		; Interruptor para sair
     END_GAME endp
 	
-		
+	
+;********************************************************************************
+
+
 Fim:
 	mov		ah,4CH
 	INT		21H
