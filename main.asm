@@ -8,35 +8,32 @@ dseg SEGMENT PARA 'DATA'
 	POSx		db	6	; POSx pode ir [1..80]
 	STR12	 	DB 		"            "	; String para 12 digitos
 
-	FINALGANHO  db "                                                          ",13,10
-				db "                    **************************************",13,10
-				db "                    *                                    *",13,10
-				db "                    *                                    *",13,10
-				db "                    *          Acabou - Parabens!        *",13,10
-				db "                    *                                    *",13,10
-				db "                    *                                    *",13,10
-				db "                    **************************************",13,10
-				db "                                                          ",13,10
-				db "                                                          ",13,10,'$'
-			
-
-	FINALPERDEU db "                                                          ",13,10
-				db "                    **************************************",13,10
-				db "                    *                                    *",13,10
-				db "                    *                                    *",13,10
-				db "                    *           Acabou o tempo!          *",13,10
-				db "                    *                                    *",13,10
-				db "                    *                                    *",13,10
-				db "                    **************************************",13,10
-				db "                                                          ",13,10
-				db "                                                          ",13,10,'$'
 				
 				
 	Bem_Vindo	db "Bem-vindo ao jogo",13,10
 				db "Prima qualquer tecla para continuar...",13,10,'$'
+								
 				
 				
+;********************************************************************************
+;Lista de nomes TOP10
+
+
+	Construir_nome	db	    "                            $"
+		buffer	db	'                             ',13,10
+				db 	'                             ',13,10
+				db	'                             ',13,10
+				db 	'                             ',13,10
+				db	'                             ',13,10
+				db	'                             ',13,10
+				db	'                             ',13,10
+				db	'                             ',13,10
+				db	'                             ',13,10
+				db	'                             ',13,10	
+				db	'                             $',13,10
 				
+				
+;********************************************************************************
 				
 
 
@@ -51,7 +48,16 @@ dseg SEGMENT PARA 'DATA'
 	Tempo_j			dw		-1				; Guarda o tempo que decorre o jogo
 	Tempo_limite	dw		100				; Tempo maximo de Jogo
 	String_TJ		db		"     / 100$"
-	
+	Pontuacao       dw      500             ; Guarda a pontuação do jogador
+	Nome_Jogador	db		"          $"   ; Guarda o nome do jogador
+	displacement    dw      ?
+	pont_insuf      db      "Pontuacao insuficiente para TOP10"
+	extrair_pont    dw      0
+	POSyplayer      db      10              ; Posição da string para introduzir Nome de Utilizador
+	Posxplayer      db      29              ; Posição da string para introduzir Nome de Utilizador
+	introduzir_nome db      "Nome do utilizador:$"
+	nomeplayerTEXT  db      "          $"
+	tamanho_matriz  dw      0
 	
 	; FICHEIROS
 	
@@ -60,7 +66,7 @@ dseg SEGMENT PARA 'DATA'
 	FichTabela      db      'PAINEL.txt',0
 	FichTop10       db      'TOP10.txt',0
 	Player_Won      db      'WINNER.txt',0
-	Jogo_Acabou     db      'LOSER.txt'
+	Jogo_Acabou     db      'LOSER.txt',0
 	
 	handleFich 		dw      0
 	carFich			db      ?
@@ -70,6 +76,10 @@ dseg SEGMENT PARA 'DATA'
 	msgErrorOpen       	db	"Erro ao tentar abrir o ficheiro$"
 	msgErrorRead    	db	"Erro ao tentar ler o ficheiro$"
     msgErrorCloseRead	db	"Erro ao tentar fechar o ficheiro$"
+	msgErrorCreate      db  "Erro na criacao do ficheiro$"
+	msgErrorWrite       db  "Erro na escrita do ficheiro$"
+	msgErrorClose       db  "Erro no fecho do ficheiro$"
+	
 	
 	
 dseg ENDS
@@ -120,8 +130,8 @@ cseg segment para public 'code'
 	LE_MENU	proc
 		mov     ah,3dh					; vamos abrir ficheiro para leitura 
 		mov     al,0					; tipo de ficheiro	
-		lea     dx,FichMenu				; nome do ficheiro
-		int     21h						; abre para leitura 
+		mov     di,0
+		int     21h						
 		jc      ERRO_ABRIR				; pode aconter erro a abrir o ficheiro 
 		mov     handleFich,ax			; ax devolve o Handle para o ficheiro 
 		jmp     LER_CICLO				; depois de abero vamos ler o ficheiro 
@@ -182,22 +192,56 @@ cseg segment para public 'code'
 		ret
 	LE_MENU	endp
 		
+		
+;********************************************************************************
+
 	
-	main  proc
+	Main  proc
 		mov     ax, dseg
 		mov     ds, ax
 		mov		ax,0B800h
 		mov		es,ax
+		lea     dx,FichTop10
+		CALL    LE_MENU
+		
+		
+;********************************************************************************	
 
-		;**** Inserir codigo
-		CALL LE_MENU
+
+    Menu:
+	    call APAGA_ECRAN
+		goto_xy		0,0
+		lea			dx,FichMenu      	; Carregar para dx o ficheiro que queremos imprimir
+		call		IMP_FICH  			; Imprimir o ficheiro
+
+		mov  ah, 07h 					; Espera para que o utilizador insira um caracter
+  		int  21h
+  		cmp  al, '1' 					; Se inserir o numero 1
+  		je   jogo_start                	; Vai para o jogo
+  		cmp  al, '2' 					; Se inserir o numero 2
+  		je   TOP10 						; Vai para a lista do top10
+		cmp  al, '3' 					; Se inserir o numero 3
+		je   SAIR 						; Sai do programa
+		jmp  Menu 	
 		
 		
 ;********************************************************************************		
+;Jogo
+
+
+    jogo_start:
+
+
+
+
+
+
+
+;********************************************************************************
 		
 		
 	TOP10:
-	    call apaga_ecran
+	    call APAGA_ECRAN
 	    goto_xy 0,0
         lea dx, FichTop10  ; Colocar em dx o ficheiro com a lista do TOP10
 		call IMP_FICH      ; Imprimir ficheiro
@@ -206,7 +250,7 @@ cseg segment para public 'code'
 		int 21h
 		call main
 		
-	sair: 
+	SAIR: 
 	
 	    call END_GAME
 		
@@ -258,7 +302,6 @@ cseg segment para public 'code'
         mov     bx,handleFich
         int     21h
         jnc     SAI
-
         mov     ah,09h
         lea     dx,msgErrorCloseRead
         Int     21h
@@ -278,24 +321,18 @@ cseg segment para public 'code'
 		PUSH BX
 		PUSH CX
 		PUSH DX
-	
 		PUSHF
-		
 		MOV AH, 2CH             ; Ver Horas
 		INT 21H                 
-		
 		XOR AX,AX
 		MOV AL, DH              ; Mover os segundos para AL
 		mov Segundos,AX
-		
 		XOR AX,AX
 		MOV AL, CL              ; Mover os minutos para AL
 		mov Minutos, AX         ; Guardar os minutos na respetiva variavel
-		
 		XOR AX,AX
 		MOV AL, CH              ; Mover as horas para AL
 		mov Horas,AX			; Guardar as horas na respetiva variavel
- 
 		POPF
 		POP DX
 		POP CX
@@ -306,7 +343,393 @@ cseg segment para public 'code'
 	
 	
 ;********************************************************************************
-        	
+
+    WINNER proc
+	 
+    FIM_JOGO_GANHO:	 
+		call APAGA_ECRAN
+	    goto_xy	0,0   				;apaga o ecra a partir do 0 0
+        lea  	dx,Player_Won   	;carregar para dx o ficheiro que queremos imprimir
+        call 	IMP_FICH   			;imprimir o ficheiro
+        goto_xy 45,22				; print da pontuacao
+	    mov		ax,Pontuacao
+	    call 	PRINTDIGIT
+	    goto_xy 70,22				; print do nivel
+	    mov 	ah, 07h 			; Espera para que o utilizador insira um caracter
+  	    int 	21h					
+	    cmp     al,'1'
+	    je      PLAY_AGAIN2
+	    cmp     al,'2'
+	    je      TOP10xx
+	    cmp     al,'3'
+	    je      LEAVE2
+	    jmp     FIM_JOGO_GANHO
+		
+		
+    TOP10xx:
+	    call ADICIONAR_TOP10
+		
+		
+    PLAY_AGAIN2:
+	    call MAIN
+		
+		
+    LEAVE2
+	    call END_GAME
+		
+		
+    WINNER endp
+
+
+;********************************************************************************
+
+
+    LOSER proc
+	
+	FIM_JOGO_PERDIDO:
+	    call	APAGA_ECRAN
+	    goto_xy	0,0   				;apaga o ecra a partir do 0 0
+        lea  	dx,Jogo_Acabou		;carregar para dx o ficheiro que queremos imprimir
+        call 	IMP_FICH  			;imprimir o ficheiro
+	    goto_xy 45,22				; print da pontuacao
+	    mov		ax,Pontuacao
+	    call 	PRINTDIGIT
+	    goto_xy 70,22				; print do nivel
+	    mov  	ah, 07h 			; Espera para que o utilizador insira um caracter
+  	    int  	21h
+	    cmp     al,'1'
+	    je      PLAY_AGAIN
+	    cmp     al,'2'	
+	    je      TOP10x
+	    cmp     al,'3'
+	    je      LEAVE1
+	    jmp     FIM_JOGO_PERDIDO
+
+
+    TOP10x:
+	call ADICIONAR_TOP10
+    
+	
+	PLAY_AGAIN:
+	call MAIN
+
+
+    LEAVE1:
+	call END_GAME
+ 
+ 
+    GAME_OVER endp
+        
+	
+;********************************************************************************
+
+
+    RESETARJOGADOR proc
+	       mov    bx,0
+		   mov    cx,10
+	
+	
+	RESET_PLAYER:
+	      mov     Nome_Jogador[bx],''
+		  inc     bx
+		  loop    RESET_PLAYER
+		  ret
+		  
+		  
+	RESETARJOGADOR endp
+
+		   
+;********************************************************************************
+
+
+    ADICIONAR_TOP10 proc
+	      goto_xy    0,0
+		  call       APAGA_ECRAN
+		  call       RESETARJOGADOR
+		  mov        si,0
+		  mov        displacement,0
+		  jmp        preencher
+		  
+		  
+	PEQUENA_PONTUACAO:
+	      call       APAGA_ECRAN
+		  goto_xy    10,10
+		  MOSTRA     pont_insuf
+		  mov        ah,07h
+		  int        21h
+		  call       MAIN
+		  
+		  
+	PEQUENA_PONTUACAO2:
+	      cmp        si,270
+		  jae        PEQUENA_PONTUACAO
+		  add        si,30
+		  add        displacement,30
+		  
+		  
+	preencher:
+	      call     EXTRAIR_NUMERO
+		  mov      ax,extrair_pont
+		  cmp      Pontuacao,ax
+		  jbe      PEQUENA_PONTUACAO2
+		  call     NPLAYER
+		  lea      bx,buffer
+		  mov      ax,Pontuacao
+		  add      displacement,20
+		  call     PRINTDIGITPLUS
+		  lea      dx,FichTop10
+		  lea      si,buffer
+		  mov      tamanho_matriz,290
+		  call     EXPORTARMATRIX
+		  
+	
+	ADICIONAR_TOP10 endp
+	      
+		  
+;********************************************************************************
+
+
+    NPLAYER proc                                     ; Introduzir nome de utilizador
+	      xor si,si
+	      mov cx,10					
+	      mov bx,displacement			
+
+
+    res_player:						
+	      mov       buffer[bx+si],' '		
+	      inc       si						
+	      loop      res_player				
+	      xor       si,si
+	      goto_xy   10,10
+	      mostra    introduzir_nome
+	      mov       POSxplayer,29
+	      mov       POSyplayer,10
+
+
+    jogador:
+	     goto_xy   POSxplayer ,POSyplayer 
+	     mov       ah,07h
+  	     int       21h
+
+
+    ciclo:	
+	     cmp    al ,0DH
+	     je     sos
+	     cmp    al,'A'
+	     jb     jogador
+	     cmp    al,'Z'
+	     ja     jogador
+	     jmp    letra
+
+
+    letra:
+	     mov    nomeplayerText[si],al
+	     mov    bx,displacement
+	     mov    buffer[si+bx],al		; salva o input na matriz buffer
+      	 inc    si
+	     cmp    si, 10
+	     je     sos
+	     jmp    nic
+
+
+    nic:
+	     goto_xy    29 ,10
+	     mostra     nomeplayerTEXT
+	     inc        POSxplayer
+	     jmp        player
+
+
+    sos:
+	     RET
+		 
+		 
+    NPLAYER endp
+	
+
+;********************************************************************************
+
+    EXPORTARMATRIX proc
+		mov		ah, 3ch				; Abrir o ficheiro para escrita
+		mov		cx, 00H				; Define o tipo de ficheiro 	
+		int		21h					; Abre efectivamente o ficheiro (AX fica com o Handle do ficheiro)
+		jnc		escrever			; Se não existir erro escreve no ficheiro				; handle é tipo, apontar para o sitio onde está a memória	
+		mov		ah, 09h
+		lea		dx, msgErrorCreate
+		int		21h
+		jmp fim
+	
+	
+    escrever:
+		mov		bx, ax				; Coloca em BX o Handle
+    	mov		ah, 40h				; indica que é para escrever
+		mov		dx, si				; DX aponta para a infromação a escrever
+    	mov		cx, tamanho_matriz	; CX fica com o numero de bytes a escrever
+		int		21h					; Chama a rotina de escrita
+		jnc		fechar				; Se não existir erro na escrita fecha o ficheiro
+		mov		ah, 09h
+		lea		dx, msgErrorWrite
+		int		21h
+		
+		
+    fechar:
+		mov		ah,3eh				; fecha o ficheiro
+		int		21h
+		jnc		fim
+		mov		ah, 09h
+		lea		dx, msgErrorClose
+		int		21h
+		
+		
+    fim:
+		ret
+
+
+    EXPORTARMATRIX endp
+
+
+;********************************************************************************
+
+
+    EXTRAIR_NUMERO proc
+	      push  si
+	      xor   si,si
+	      mov	di,1
+	      xor   ax,ax
+	      xor   dx,dx
+	      mov   extrair_pont,0
+	      add   displacement,19			
+	      mov   si,displacement
+
+
+    BOM:
+	      goto_xy 0,0
+ 	      lea     bx,buffer
+       	  mov     dl, [bx+si]			
+	      mov     ah, 02h 			
+	      int     21h				
+          sub	  al,'0'		    
+	      mov	  ah,0 				
+	      mul	  di				
+      	  add	  extrair_pont,ax
+	      sub	  si,1
+	      cmp     buffer[si],' '
+	      je	  EM
+	      mov     ax,10				
+	      mul	  di
+	      mov	  di,ax
+	      jmp	  BOM
+
+
+    EM:
+	     sub   displacement,19		
+     	 pop   si
+	     ret
+    
+	
+	EXTRAIR_NUMERO endp
+	
+
+;********************************************************************************
+
+
+    PRINTDIGIT proc
+	    mov cx,0
+        mov dx,0
+	    cmp ax,0			; Verifica se tem 0
+	    je	SAIDA1
+		
+		
+    PART1:
+    	cmp ax,0		; Verifica se ax = 0
+        je PRINT1
+        mov bx,10       ; bx inicializa a 10
+        div bx 			; Extrair último digito
+        push dx 		; Guarda o mesmo na stack
+        inc cx 			; Incrementar o contador 
+        xor dx,dx		; Colocar dx a zeros
+        jmp PART1
+		
+		
+    PRINT1:
+        cmp cx,0		; Verificar se cx = 0
+        je exit
+        pop dx 			 
+        add dx,48		 
+        mov ah,02h		
+        int 21h
+        dec cx			
+        jmp PRINT1
+
+
+    SAIDA1:
+		mov dx,'0'
+		mov ah,02h
+        int 21h
+
+		
+    SAIDA:
+		mov dx,' '
+		mov ah,02h		; para dar print de um espaço no fim caso fique com menos um digito
+        int 21h
+		RET
+
+
+    PRINTDIGIT ENDP
+
+
+;********************************************************************************
+
+
+    PRINTDIGITPLUS proc
+	    mov   cx,0
+        mov   dx,0
+	    cmp   ax,0			
+	    je	  SAIDA1
+		
+		
+    PART1:
+    	cmp   ax,0		
+        je    PRINT1
+        mov   bx,10      
+        div   bx 			
+		pop   bx
+        push  dx 		
+        inc   cx 			
+        xor   dx,dx		
+        jmp   PART1
+		
+		
+    PRINT1:
+        cmp    cx,0		
+        je     exit
+        pop    dx 			 
+        add    dx,48		 
+        mov    si,displacement
+        sub    si,cx
+        mov    [bx+si],dl		
+        int    21h
+        dec    cx			
+        jmp    PRINT1
+
+
+    SAIDA1:
+		mov dx,'0'
+		mov ah,02h
+        int 21h
+
+		
+    SAIDA:
+		mov dx,' '
+		mov ah,02h		
+        int 21h
+		RET
+
+
+    PRINTDIGITPLUS ENDP
+
+ 
+ ;********************************************************************************
+
 		
 	APAGA_ECRAN	proc
 		mov		ax,0B800h
@@ -328,7 +751,7 @@ cseg segment para public 'code'
 	
 	
 	END_GAME proc
-		call		apaga_ecran
+		call		APAGA_ECRAN
         goto_xy 	0,0
 		mov			ah,4CH   	
 		INT			21H   		; Interruptor para sair
