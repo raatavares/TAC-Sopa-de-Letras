@@ -66,7 +66,7 @@ dseg SEGMENT PARA 'DATA'
 	
 	; mensagens de erro ler ficheiros
 	msgErrorOpen       	db	"Erro ao tentar abrir o ficheiro$"
-	msgErrorRead    	db	"Erro ao tentar ler do ficheiro$"
+	msgErrorRead    	db	"Erro ao tentar ler o ficheiro$"
     msgErrorCloseRead	db	"Erro ao tentar fechar o ficheiro$"
 	
 	
@@ -155,7 +155,7 @@ cseg segment para public 'code'
 		int     21h
 		jnc     SAI
 
-		mov     ah,09h			; o ficheiro pode n�o fechar correctamente
+		mov     ah,09h			; o ficheiro pode não fechar correctamente
 		lea     dx,msgErrorCloseRead
 		Int     21h
 	SAI:
@@ -189,6 +189,150 @@ cseg segment para public 'code'
 
 		;**** Inserir codigo
 		CALL LE_MENU
+		
+		
+		
+		
+		
+	TOP10:
+	    call apaga_ecran
+	    goto_xy 0,0
+        lea dx, FichTop10  ; Colocar em dx o ficheiro com a lista do TOP10
+		call IMP_FICH      ; Imprimir ficheiro
+		
+		mov ah,07h
+		int 21h
+		call main
+		
+	sair: 
+	
+	    call END_GAME
+		
+	main endp
+	
+	
+	
+;********************************************************************************
+;   IMP_FICH
+		
+	IMP_FICH proc:
+        mov ah,3dh
+		mov al,0
+		int 21h
+		jc erro_abrir
+		mov handleFich,ax
+		jmp ler_ciclo
+		
+		
+	erro_abrir:
+	    mov ah,09h
+		lea dx,msgErrorOpen  
+		int 21h
+		jmp sai_f
+		
+	
+	ler_ciclo:
+        mov ah,3fh
+        mov     bx,handleFich
+        mov     cx,1
+        lea     dx,carFich
+        int     21h
+		jc		erro_ler
+		cmp		ax,0		
+		je		fecha_ficheiro
+        mov     ah,02h
+		mov		dl,carFich
+		int		21h
+		jmp		ler_ciclo		
+		
+		
+	erro_ler:
+	    mov     ah,09h
+        lea     dx,msgErrorRead
+        int     21h
+		
+		
+	fecha_ficheiro:
+        mov     ah,3eh
+        mov     bx,handleFich
+        int     21h
+        jnc     sai_f
+
+        mov     ah,09h
+        lea     dx,msgErrorCloseRead
+        Int     21h
+		
+		
+	sai_f:
+	    RET
+		
+		
+	IMP_FICH endp
+
+
+;********************************************************************************
+
+    Ler_TEMPO proc
+	    PUSH AX
+		PUSH BX
+		PUSH CX
+		PUSH DX
+	
+		PUSHF
+		
+		MOV AH, 2CH             ; Ver Horas
+		INT 21H                 
+		
+		XOR AX,AX
+		MOV AL, DH              ; Mover os segundos para AL
+		mov Segundos,AX
+		
+		XOR AX,AX
+		MOV AL, CL              ; Mover os minutos para AL
+		mov Minutos, AX         ; Guardar os minutos na respetiva variavel
+		
+		XOR AX,AX
+		MOV AL, CH              ; Mover as horas para AL
+		mov Horas,AX			; Guardar as horas na respetiva variavel
+ 
+		POPF
+		POP DX
+		POP CX
+		POP BX
+		POP AX
+ 		RET 
+Ler_TEMPO   endp
+        	
+		
+		
+	
+	
+	
+	apaga_ecran	proc
+		mov		ax,0B800h
+		mov		es,ax
+		xor		bx,bx
+		mov		cx,25*80
+		
+    apaga:	
+	    mov		byte ptr es:[bx],' '
+		mov		byte ptr es:[bx+1],7
+		inc		bx
+		inc 	bx
+		loop	apaga
+		ret
+    apaga_ecran	endp
+
+
+
+	
+	END_GAME proc
+		call		apaga_ecran
+        goto_xy 	0,0
+		mov			ah,4CH   	
+		INT			21H   		; Interruptor para sair
+    END_GAME endp
+	
 		
 Fim:
 	mov		ah,4CH
