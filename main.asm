@@ -72,7 +72,7 @@ dseg SEGMENT PARA 'DATA'
 	carFich			db      ?
 	
 	
-	; mensagens de erro ler ficheiros
+	; mensagens de erro ficheiros
 	msgErrorOpen       	db	"Erro ao tentar abrir o ficheiro$"
 	msgErrorRead    	db	"Erro ao tentar ler o ficheiro$"
     msgErrorCloseRead	db	"Erro ao tentar fechar o ficheiro$"
