@@ -12,7 +12,7 @@ dseg SEGMENT PARA 'DATA'
 				
 	Bem_Vindo	db "Bem-vindo ao jogo",13,10
 				db "Prima qualquer tecla para continuar...",13,10,'$'
-								
+				
 				
 				
 ;********************************************************************************
@@ -31,10 +31,10 @@ dseg SEGMENT PARA 'DATA'
 		    		db	'                             ',13,10
 		    		db	'                             ',13,10	
 			    	db	'                             $',13,10
-				
-				
+
+
 ;********************************************************************************
-				
+
 
 
     ; CONTADOR
@@ -80,7 +80,7 @@ dseg SEGMENT PARA 'DATA'
 	msgErrorWrite       db  "Erro na escrita do ficheiro$"
 	msgErrorClose       db  "Erro no fecho do ficheiro$"
 	
-	
+
 	
 dseg ENDS
 
@@ -130,38 +130,38 @@ cseg segment para public 'code'
 	LE_MENU	proc
 		mov     ah,3dh					; vamos abrir ficheiro para leitura 
 		mov     al,0					; tipo de ficheiro	
-		mov     di,0
-		int     21h						
-		jc      ERRO_ABRIR				; pode aconter erro a abrir o ficheiro 
+		lea     dx,FichMenu				; nome do ficheiro
+		int     21h						; abre para leitura 
+		jc      ERRO_ABRIR_MENU				; pode aconter erro a abrir o ficheiro 
 		mov     handleFich,ax			; ax devolve o Handle para o ficheiro 
-		jmp     LER_CICLO				; depois de abero vamos ler o ficheiro 
+		jmp     LER_CICLO_MENU				; depois de abero vamos ler o ficheiro 
 
-	ERRO_ABRIR:
+	ERRO_ABRIR_MENU:
 		mov     ah,09h
 		lea     dx,msgErrorOpen
 		int     21h
 		jmp     SAI
 
-	LER_CICLO:
+	LER_CICLO_MENU:
 		mov     ah,3fh				; indica que vai ser lido um ficheiro 
 		mov     bx,handleFich		; bx deve conter o Handle do ficheiro previamente aberto 
 		mov     cx,1				; nomeJogador de bytes a ler 
 		lea     dx,carFich			; vai ler para o local de memoria apontado por dx (carFich)
 		int     21h					; faz efectivamente a leitura
-		jc	    ERRO_LER			; se carry � porque aconteceu um erro
+		jc	    ERRO_LER_MENU			; se carry � porque aconteceu um erro
 		cmp	    ax,0				;EOF?	verifica se j� estamos no fim do ficheiro 
-		je	    FECHA_FICHEIRO		; se EOF fecha o ficheiro 
+		je	    FECHA_FICHEIRO_MENU		; se EOF fecha o ficheiro 
 		mov     ah,02h				; coloca o caracter no ecran
 		mov	    dl,carFich			; este � o caracter a enviar para o ecran
 		int	    21h					; imprime no ecran
-		jmp	    LER_CICLO			; continua a ler o ficheiro
+		jmp	    LER_CICLO_MENU			; continua a ler o ficheiro
 
-	ERRO_LER:
+	ERRO_LER_MENU:
 		mov     ah,09h
 		lea     dx,msgErrorRead
 		int     21h
 
-		FECHA_FICHEIRO:					; vamos fechar o ficheiro 
+		FECHA_FICHEIRO_MENU:					; vamos fechar o ficheiro 
 		mov     ah,3eh
 		mov     bx,handleFich
 		int     21h
@@ -192,20 +192,20 @@ cseg segment para public 'code'
 		ret
 	LE_MENU	endp
 		
+				
+;********************************************************************************		
 		
-;********************************************************************************
+		
 
-	
-	Main  proc
-		mov     ax, dseg
-		mov     ds, ax
-		mov		ax,0B800h
-		mov		es,ax
-		lea     dx,FichTop10
-		CALL    LE_MENU
-		
-		
-;********************************************************************************	
+
+
+
+
+
+
+
+
+
 
 
     Menu:
@@ -223,9 +223,9 @@ cseg segment para public 'code'
 		cmp  al, '3' 					; Se inserir o numero 3
 		je   SAIR 						; Sai do programa
 		jmp  Menu 	
-		
-		
-;********************************************************************************		
+
+
+;********************************************************************************
 ;Jogo
 
 
@@ -238,9 +238,9 @@ cseg segment para public 'code'
 
 
 ;********************************************************************************
-		
-		
-	TOP10:
+
+
+	TOP10 proc
 	    call APAGA_ECRAN
 	    goto_xy 0,0
         lea dx, FichTop10  ; Colocar em dx o ficheiro com a lista do TOP10
@@ -250,17 +250,17 @@ cseg segment para public 'code'
 		int 21h
 		call main
 		
-	SAIR: 
+	SAIR:
 	
 	    call END_GAME
 		
-	main endp
+	TOP10 endp
 	
 	
 ;********************************************************************************
 
 		
-	IMP_FICH proc:
+	IMP_FICH proc
         mov ah,3dh
 		mov al,0
 		int 21h
@@ -301,7 +301,7 @@ cseg segment para public 'code'
         mov     ah,3eh
         mov     bx,handleFich
         int     21h
-        jnc     SAI
+        jnc     SAI_F
         mov     ah,09h
         lea     dx,msgErrorCloseRead
         Int     21h
@@ -343,7 +343,7 @@ cseg segment para public 'code'
 	
 	
 ;********************************************************************************
-
+     
     WINNER proc
 	 
     FIM_JOGO_GANHO:	 
@@ -636,21 +636,21 @@ cseg segment para public 'code'
 	    mov cx,0
         mov dx,0
 	    cmp ax,0			; Verifica se tem 0
-	    je	SAIDA1
+	    je	SAIDA1_PRINTDIGIT
 		
 		
-    PART1:
+    PART1_PRINTDIGIT:
     	cmp ax,0		; Verifica se ax = 0
-        je PRINT1
+        je PRINT1_PRINTDIGIT
         mov bx,10       ; bx inicializa a 10
         div bx 			; Extrair último digito
         push dx 		; Guarda o mesmo na stack
         inc cx 			; Incrementar o contador 
         xor dx,dx		; Colocar dx a zeros
-        jmp PART1
+        jmp PART1_PRINTDIGIT
 		
 		
-    PRINT1:
+    PRINT1_PRINTDIGIT:
         cmp cx,0		; Verificar se cx = 0
         je exit
         pop dx 			 
@@ -658,16 +658,16 @@ cseg segment para public 'code'
         mov ah,02h		
         int 21h
         dec cx			
-        jmp PRINT1
+        jmp PRINT1_PRINTDIGIT
 
 
-    SAIDA1:
+    SAIDA1_PRINTDIGIT:
 		mov dx,'0'
 		mov ah,02h
         int 21h
 
 		
-    SAIDA:
+    SAIDA_PRINTDIGIT:
 		mov dx,' '
 		mov ah,02h		; para dar print de um espaço no fim caso fique com menos um digito
         int 21h
@@ -701,7 +701,7 @@ cseg segment para public 'code'
 		
     PRINT1:
         cmp    cx,0		
-        je     exit
+        je     SAIDA
         pop    dx 			 
         add    dx,48		 
         mov    si,displacement
@@ -729,7 +729,7 @@ cseg segment para public 'code'
 
  
  ;********************************************************************************
-
+   	
 		
 	APAGA_ECRAN	proc
 		mov		ax,0B800h
@@ -760,7 +760,14 @@ cseg segment para public 'code'
 	
 ;********************************************************************************
 
-
+main  proc
+		mov     ax, dseg
+		mov     ds, ax
+		mov		ax,0B800h
+		mov		es,ax
+		lea     dx,FichTop10
+		CALL    LE_MENU
+		
 Fim:
 	mov		ah,4CH
 	INT		21H
