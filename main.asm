@@ -43,6 +43,7 @@ dseg SEGMENT PARA 'DATA'
 	Horas			dw		0				; Guarda a hora atual
 	Minutos			dw		0				; Guarda os minutos actuais
 	Segundos		dw		0				; Guarda os segundos actuais
+	Dia_Mes_Ano     db      "              "
 	Old_seg			dw		0				; Guarda os ultimos segundos que foram lidos
 	Tempo_init		dw		0				; Guarda o tempo de inicio do jogo
 	Tempo_j			dw		-1				; Guarda o tempo que decorre o jogo
@@ -54,7 +55,9 @@ dseg SEGMENT PARA 'DATA'
 	pont_insuf      db      "Pontuacao insuficiente para TOP10"
 	extrair_pont    dw      0
 	POSyplayer      db      10              ; Posição da string para introduzir Nome de Utilizador
-	Posxplayer      db      29              ; Posição da string para introduzir Nome de Utilizador
+	POSxplayer      db      29              ; Posição da string para introduzir Nome de Utilizador
+	POSpontosx      db      45              ; Posição dos pontos
+	POSpontosy      db      20              ; Posição dos pontos
 	introduzir_nome db      "Nome do utilizador:$"
 	nomeplayerTEXT  db      "          $"
 	tamanho_matriz  dw      0
@@ -196,18 +199,6 @@ cseg segment para public 'code'
 ;********************************************************************************		
 		
 		
-
-
-
-
-
-
-
-
-
-
-
-
     Menu:
 	    call APAGA_ECRAN
 		goto_xy		0,0
@@ -316,6 +307,20 @@ cseg segment para public 'code'
 
 ;********************************************************************************
 
+
+    ADICIONARPONTOS proc
+	    goto_xy     POSpontosx,POSpontosy
+		add         pontuacao, 750
+		mov         ax, pontuacao
+		call        PRINTDIGIT
+		ret
+		
+		
+	ADICIONARPONTOS endp
+
+
+;********************************************************************************
+
     LER_TEMPO proc
 	    PUSH AX
 		PUSH BX
@@ -382,6 +387,124 @@ cseg segment para public 'code'
 
 
 ;********************************************************************************
+; TEMPO - Analisa a data do sistema e coloca numa string com a forma DD/MM/AAAA
+; CX - Ano | DH - Mês | DL - Dia
+
+
+   TEMPO proc
+        push      ax
+		push      bx
+		push      cx
+		push      dx
+		push      si
+		pushf
+		mov       ah, 2ah   ; Procurar a data
+		int       21h
+		push      cx        ; Ano -> Pilha
+		xor       cx, cx    ; Limpar CX
+		mov       cl, dl    ; Mês = CL
+		push      cx        ; Mês -> Pilha
+		mov       cl, dl    ; Dia = CL
+		push      cx        ; Dia -> Pilha
+		xor       dh, dh
+		xor       si, si
+		
+		
+; Tratamento do DIA:
+
+
+        xor       dx, dx    ; Limpa DX
+		pop       ax        ; Tirar dia da pilha
+		mov       cx, 0
+		mov       bx, 10
+		mov       cx, 2
+		
+		
+	DIVISOR_DIA:
+	    div       bx        ; Divide por 10
+		push      dx
+		mov       dx, 0
+		loop      DIVISOR_DIA
+		mov       cx, 2
+		
+		
+	RESTO_DIA: 
+	    pop       dx                         ; Resto da divisão
+		add       dl, 30h
+		mov       Dia_Mes_Ano[si], dl
+		inc       si
+		loop      RESTO_DIA
+		mov       dl, '/'                    ; Separador
+		mov       Dia_Mes_Ano[si], dl
+		inc       si
+		
+		
+; Tratamento do MÊS
+
+
+        mov       dx, 0
+		pop       ax
+		xor       cx, cx
+		mov       bx, 10
+		mov       cx, 2
+		
+		
+	DIVISOR_MES:
+	    div       bx
+		push      dx
+		mov       dx, 0
+		loop      DIVISOR_MES
+		mov       cx, 2
+		
+		
+	RESTO_MES:
+	    pop       dx
+		add       dl, 30h
+		mov       Dia_Mes_Ano[si], dl
+		inc       si
+		loop      RESTO_MES
+		mov       dl, '/'
+		mov       Dia_Mes_Ano[si], dl
+		inc       si
+		
+		
+; Tratamento do ANO
+
+
+        mov       dx, 0
+		pop       ax
+		mov       cx, 0
+		mov       bx, 10
+		
+		
+	DIVISOR_ANO:
+	    div       bx
+		push      dx
+		add       cx, 1
+		mov       dx, 0
+		cmp       ax, 0
+		jne       DIVISOR_ANO
+		
+		
+	RESTO_ANO:
+	    pop       dx
+		add       dl, 30h
+		mov       Dia_Mes_Ano[si], dl
+		inc       si
+		loop      RESTO_ANO
+		popf
+		pop       si
+		pop       dx
+		pop       cx
+		pop       bx
+		pop       ax
+		ret
+		
+		
+	TEMPO endp
+
+
+;********************************************************************************
 
 
     LOSER proc
@@ -430,10 +553,10 @@ cseg segment para public 'code'
 	
 	
 	RESET_PLAYER:
-	      mov     Nome_Jogador[bx],''
-		  inc     bx
-		  loop    RESET_PLAYER
-		  ret
+	       mov     Nome_Jogador[bx],''
+		   inc     bx
+		   loop    RESET_PLAYER
+		   ret
 		  
 		  
 	RESETARJOGADOR endp
