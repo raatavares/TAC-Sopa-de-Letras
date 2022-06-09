@@ -39,6 +39,7 @@ dseg SEGMENT PARA 'DATA'
 
     ; CONTADOR
 	
+	
 	timer			dw 	    0				; Contador de tempo
 	Horas			dw		0				; Guarda a hora atual
 	Minutos			dw		0				; Guarda os minutos actuais
@@ -106,20 +107,20 @@ cseg segment para public 'code'
 	;MAIN ENDP
 	
 	
-	;########################################################################
-	; GOTO_XY - MOVE A POSICAO DO CURSOR
+;********************************************************************************
+; GOTO_XY - MOVE A POSICAO DO CURSOR
 
 	goto_xy	macro	POSy, POSx
 		mov		ah,02h
-		mov		bh,0		; nomeJogador da p�gina
+		mov		bh,0		; nomeJogador da página
 		mov		dh,POSy
 		mov		dl,POSx
 		int		10h
 	endm
 
 
-	;########################################################################
-	; MOSTRA - Faz o display de uma string terminada em $
+;********************************************************************************
+; MOSTRA - Faz o display de uma string terminada em $
 
 	MOSTRA MACRO STR 
 		MOV AH,09H
@@ -196,7 +197,114 @@ cseg segment para public 'code'
 	LE_MENU	endp
 		
 				
-;********************************************************************************		
+;********************************************************************************
+; Assinala caracter no ecran	
+
+    assinala_P	PROC
+
+
+    CICLO:	
+		; goto_xy	POSxa,POSya	; Vai para a posição anterior do cursor
+		; mov		ah, 02h
+		; mov		dl, Car	; Repoe Caracter guardado 
+		; int		21H		
+		
+		goto_xy	POSx,POSy	; Vai para nova posição
+		mov 	ah, 08h
+		mov		bh,0		; numero da página
+		int		10h		
+		mov		Car, al		; Guarda o Caracter que está na posição do Cursor
+		mov		Cor, ah		; Guarda a cor que está na posição do Cursor
+		goto_xy	78,0		; Mostra o caractereque estava na posição do AVATAR
+		mov		ah, 02h		; IMPRIME caracter da posição no canto
+		mov		dl, Car	
+		int		21H			
+		goto_xy	POSx,POSy	; Vai para posição do cursor
+		
+		
+    IMPRIME:	
+		; mov		ah, 02h
+		; mov		dl, 190		; Coloca AVATAR
+		; int		21H	
+		; goto_xy	POSx,POSy	; Vai para posição do cursor
+		
+		; mov		al, POSx	; Guarda a posição do cursor	
+		; mov		POSxa, al
+		; mov		al, POSy	; Guarda a posição do cursor
+		; mov 	POSya, al
+		
+		
+    LER_SETA:	
+		call 	LE_TECLA
+		cmp		ah, 1
+		je		ESTEND
+		CMP 	AL, 27	; ESCAPE
+		JE		FIM
+		CMP		AL, 13
+		je		ASSINALA
+		jmp		LER_SETA
+		
+		
+    ESTEND:	
+	    cmp 	al,48h
+		jne		BAIXO
+		dec		POSy		;cima
+		jmp		CICLO
+
+
+    BAIXO:	 
+	    cmp		al,50h
+		jne		ESQUERDA
+		inc 	POSy		;Baixo
+		jmp		CICLO
+
+
+    ESQUERDA:
+		cmp		al,4Bh
+		jne		DIREITA
+		dec		POSx		;Esquerda
+		dec		POSx		;Esquerda
+		jmp		CICLO
+		
+
+    DIREITA:
+		cmp		al,4Dh
+		jne		LER_SETA 
+		inc		POSx		;Direita
+		inc		POSx		;Direita
+		jmp		CICLO
+
+				; INT 10,9 - Write Character and Attribute at Cursor Position
+				; AH = 09
+				; AL = ASCII character to write
+				; BH = display page  (or mode 13h, background pixel value)
+				; BL = character attribute (text) foreground color (graphics)
+				; CX = count of characters to write (CX >= 1)
+				
+				
+    ASSINALA:
+		mov		bl, cor
+		not		bl
+		mov		cor, bl
+		mov 	ah, 09h
+		mov		al, car
+		mov		bh, 0
+		mov		cx, 1
+		int		10h
+		jmp		CICLO
+    
+	
+	fim:	
+		RET
+    
+	
+	assinala_P	endp
+
+
+
+
+	
+;********************************************************************************	
 		
 		
     Menu:
@@ -208,7 +316,7 @@ cseg segment para public 'code'
 		mov  ah, 07h 					; Espera para que o utilizador insira um caracter
   		int  21h
   		cmp  al, '1' 					; Se inserir o numero 1
-  		je   jogo_start                	; Vai para o jogo
+  		je   nivel_basico              	; Vai para o jogo
   		cmp  al, '2' 					; Se inserir o numero 2
   		je   TOP10 						; Vai para a lista do top10
 		cmp  al, '3' 					; Se inserir o numero 3
@@ -217,10 +325,28 @@ cseg segment para public 'code'
 
 
 ;********************************************************************************
-;Jogo
+; Jogo - Nivel Básico
 
 
-    jogo_start:
+    nivel_basico:
+	    lea  bx
+
+
+
+
+
+
+
+
+;********************************************************************************
+; Jogo - Nivel Avançado
+
+
+    nivel_avancado:
+
+
+
+
 
 
 
@@ -502,6 +628,49 @@ cseg segment para public 'code'
 		
 		
 	TEMPO endp
+
+
+;********************************************************************************
+; MOVER_PONTOS - Substituir pontos no jogo
+
+
+    MOVER_PONTOS proc 
+	    cmp  pontuacao, 15
+		jbe  MINIMO_PONTOS
+		sub  pontuacao, 1
+		
+	
+	MINIMO_PONTOS:
+	    goto_xy  POSpontosx, POSpontosy
+		mov      ax, pontuacao
+		call     PRINTDIGIT
+		ret
+		
+		
+	MOVER_PONTOS endp
+
+
+;********************************************************************************
+
+
+; LE UMA TECLA	
+
+    LE_TECLA	PROC
+
+		mov		ah,08h
+		int		21h
+		mov		ah,0
+		cmp		al,0
+		jne		SAI_TECLA
+		mov		ah, 08h
+		int		21h
+		mov		ah,1
+    
+	
+	SAI_TECLA:		RET
+    
+	
+	LE_TECLA	endp
 
 
 ;********************************************************************************
@@ -868,7 +1037,7 @@ cseg segment para public 'code'
 		loop	APAGA
 		ret
     APAGA_ECRAN	endp
-
+	
 
 ;********************************************************************************
 	
