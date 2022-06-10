@@ -62,7 +62,12 @@ dseg SEGMENT PARA 'DATA'
 	introduzir_nome db      "Nome do utilizador:$"
 	nomeplayerTEXT  db      "          $"
 	tamanho_matriz  dw      0
-	
+	car				db		?
+	cor				db		?
+	mudaMenu	 	db 		0
+	menuOP 			db	 	?
+	bufferUser		db		255 dup (32)
+	i 				db 		0
 	; FICHEIROS
 	
 	FichMenu		db		'menu.txt',0
@@ -117,6 +122,34 @@ cseg segment para public 'code'
 		mov		dl,POSx
 		int		10h
 	endm
+
+
+ ;********************************************************************************
+   	
+		
+	APAGA_ECRAN	proc
+			PUSH BX
+		PUSH AX
+		PUSH CX
+		PUSH SI
+		XOR	BX,BX
+		MOV	CX,24*80
+		mov bx,160
+		MOV SI,BX
+	APAGA:	
+		MOV	AL,' '
+		MOV	BYTE PTR ES:[BX],AL
+		MOV	BYTE PTR ES:[BX+1],7
+		INC	BX
+		INC BX
+		INC SI
+		LOOP	APAGA
+		POP SI
+		POP CX
+		POP AX
+		POP BX
+		RET
+    APAGA_ECRAN	endp
 
 
 ;********************************************************************************
@@ -175,22 +208,22 @@ cseg segment para public 'code'
 		lea     dx,msgErrorCloseRead
 		Int     21h
 	SAI:
-		mov 	STR12[0], 190
-		mov 	STR12[1], '$'
-		GOTO_XY 10,56
-		MOSTRA STR12
-		mov 	STR12[0], 195
-		mov 	STR12[1], '$'
-		GOTO_XY 10,59
-		MOSTRA STR12
-		mov 	STR12[0], 197
-		mov 	STR12[1], '$'
-		GOTO_XY 10,62
-		MOSTRA STR12
-		mov 	STR12[0], 189
-		mov 	STR12[1], '$'
-		GOTO_XY 10,65
-		MOSTRA STR12
+	;	mov 	STR12[0], 190
+	;	mov 	STR12[1], '$'
+	;	GOTO_XY 10,56
+	;	MOSTRA STR12
+	;	mov 	STR12[0], 195
+	;	mov 	STR12[1], '$'
+	;	GOTO_XY 10,59
+	;	MOSTRA STR12
+	;	mov 	STR12[0], 197
+	;	mov 	STR12[1], '$'
+	;	GOTO_XY 10,62
+	;	MOSTRA STR12
+	;	mov 	STR12[0], 189
+	;	mov 	STR12[1], '$'
+	;	GOTO_XY 10,65
+	;	MOSTRA STR12
 		
 		GOTO_XY POSy,POSx
 		ret
@@ -203,7 +236,7 @@ cseg segment para public 'code'
     assinala_P	PROC
 
 
-    CICLO:	
+    CICLO_assinala:	
 		; goto_xy	POSxa,POSya	; Vai para a posição anterior do cursor
 		; mov		ah, 02h
 		; mov		dl, Car	; Repoe Caracter guardado 
@@ -239,7 +272,7 @@ cseg segment para public 'code'
 		cmp		ah, 1
 		je		ESTEND
 		CMP 	AL, 27	; ESCAPE
-		JE		FIM
+		JE		fim_assinala
 		CMP		AL, 13
 		je		ASSINALA
 		jmp		LER_SETA
@@ -249,14 +282,14 @@ cseg segment para public 'code'
 	    cmp 	al,48h
 		jne		BAIXO
 		dec		POSy		;cima
-		jmp		CICLO
+		jmp		CICLO_assinala
 
 
     BAIXO:	 
 	    cmp		al,50h
 		jne		ESQUERDA
 		inc 	POSy		;Baixo
-		jmp		CICLO
+		jmp		CICLO_assinala
 
 
     ESQUERDA:
@@ -264,7 +297,7 @@ cseg segment para public 'code'
 		jne		DIREITA
 		dec		POSx		;Esquerda
 		dec		POSx		;Esquerda
-		jmp		CICLO
+		jmp		CICLO_assinala
 		
 
     DIREITA:
@@ -272,7 +305,7 @@ cseg segment para public 'code'
 		jne		LER_SETA 
 		inc		POSx		;Direita
 		inc		POSx		;Direita
-		jmp		CICLO
+		jmp		CICLO_assinala
 
 				; INT 10,9 - Write Character and Attribute at Cursor Position
 				; AH = 09
@@ -291,10 +324,10 @@ cseg segment para public 'code'
 		mov		bh, 0
 		mov		cx, 1
 		int		10h
-		jmp		CICLO
+		jmp		CICLO_assinala
     
 	
-	fim:	
+	fim_assinala:	
 		RET
     
 	
@@ -315,8 +348,8 @@ cseg segment para public 'code'
 
 		mov  ah, 07h 					; Espera para que o utilizador insira um caracter
   		int  21h
-  		cmp  al, '1' 					; Se inserir o numero 1
-  		je   nivel_basico              	; Vai para o jogo
+  		;cmp  al, '1' 					; Se inserir o numero 1
+  		;je   nivel_basico              	; Vai para o jogo
   		cmp  al, '2' 					; Se inserir o numero 2
   		je   TOP10 						; Vai para a lista do top10
 		cmp  al, '3' 					; Se inserir o numero 3
@@ -328,8 +361,8 @@ cseg segment para public 'code'
 ; Jogo - Nivel Básico
 
 
-    nivel_basico:
-	    lea  bx
+    ;nivel_basico:
+	;    lea  bx
 
 
 
@@ -342,12 +375,7 @@ cseg segment para public 'code'
 ; Jogo - Nivel Avançado
 
 
-    nivel_avancado:
-
-
-
-
-
+    ;nivel_avancado:
 
 
 
@@ -361,16 +389,17 @@ cseg segment para public 'code'
 	    call APAGA_ECRAN
 	    goto_xy 0,0
         lea dx, FichTop10  ; Colocar em dx o ficheiro com a lista do TOP10
-		call IMP_FICH      ; Imprimir ficheiro
+		call IMP_FICH     ; Imprimir ficheiro
 		
 		mov ah,07h
 		int 21h
+		call APAGA_ECRAN
 		call main
 		
 	SAIR:
-	
 	    call END_GAME
-		
+
+
 	TOP10 endp
 	
 	
@@ -505,7 +534,7 @@ cseg segment para public 'code'
 	    call MAIN
 		
 		
-    LEAVE2
+    LEAVE2:
 	    call END_GAME
 		
 		
@@ -676,7 +705,7 @@ cseg segment para public 'code'
 ;********************************************************************************
 
 
-    LOSER proc
+    GAME_OVER proc
 	
 	FIM_JOGO_PERDIDO:
 	    call	APAGA_ECRAN
@@ -722,7 +751,7 @@ cseg segment para public 'code'
 	
 	
 	RESET_PLAYER:
-	       mov     Nome_Jogador[bx],''
+	       mov     Nome_Jogador[bx],' '
 		   inc     bx
 		   loop    RESET_PLAYER
 		   ret
@@ -804,7 +833,7 @@ cseg segment para public 'code'
   	     int       21h
 
 
-    ciclo:	
+    ciclo_NPLAYER:	
 	     cmp    al ,0DH
 	     je     sos
 	     cmp    al,'A'
@@ -828,7 +857,7 @@ cseg segment para public 'code'
 	     goto_xy    29 ,10
 	     mostra     nomeplayerTEXT
 	     inc        POSxplayer
-	     jmp        player
+	     jmp        NPLAYER
 
 
     sos:
@@ -848,7 +877,7 @@ cseg segment para public 'code'
 		mov		ah, 09h
 		lea		dx, msgErrorCreate
 		int		21h
-		jmp fim
+		jmp		fim_EXPORTARMATRIX
 	
 	
     escrever:
@@ -866,13 +895,13 @@ cseg segment para public 'code'
     fechar:
 		mov		ah,3eh				; fecha o ficheiro
 		int		21h
-		jnc		fim
+		jnc		fim_EXPORTARMATRIX
 		mov		ah, 09h
 		lea		dx, msgErrorClose
 		int		21h
 		
 		
-    fim:
+    fim_EXPORTARMATRIX:
 		ret
 
 
@@ -944,7 +973,7 @@ cseg segment para public 'code'
 		
     PRINT1_PRINTDIGIT:
         cmp cx,0		; Verificar se cx = 0
-        je exit
+        je SAIDA1_PRINTDIGIT
         pop dx 			 
         add dx,48		 
         mov ah,02h		
@@ -1018,25 +1047,6 @@ cseg segment para public 'code'
 
 
     PRINTDIGITPLUS ENDP
-
- 
- ;********************************************************************************
-   	
-		
-	APAGA_ECRAN	proc
-		mov		ax,0B800h
-		mov		es,ax
-		xor		bx,bx
-		mov		cx,25*80
-		
-    APAGA:	
-	    mov		byte ptr es:[bx],' '
-		mov		byte ptr es:[bx+1],7
-		inc		bx
-		inc 	bx
-		loop	APAGA
-		ret
-    APAGA_ECRAN	endp
 	
 
 ;********************************************************************************
@@ -1057,9 +1067,59 @@ main  proc
 		mov     ds, ax
 		mov		ax,0B800h
 		mov		es,ax
+
+		call APAGA_ECRAN
+
 		lea     dx,FichTop10
 		CALL    LE_MENU
+		CICLO_INICIAL:
+			goto_xy 26,81
+			CALL 	LE_TECLA
+			cmp		ah, 1
+			je		CICLO_INICIAL
+			CMP 	AL, 27		; ESCAPE
+			JNE		UM
+	
+			mov 	menuOP, 3
+			jmp 	FIM_INICIAL				
+	
+		UM:		
+			CMP 	AL, 49		; Tecla 1
+			JNE		DOIS
+			mov		menuOP, 1	
+			jmp		FIM_INICIAL		
+
+		DOIS:		
+			CMP 	AL, 50		; Tecla 2
+			JNE		FIM_INICIAL
+			mov		menuOP, 2	
+			jmp		FIM_INICIAL		
+
+		FIM_INICIAL: 	
+			CALL APAGA_ECRAN
+			mov 	mudaMenu, 1
+					
+		MENU_CICLO:
+			cmp mudaMenu, 0
+			je MENU_CICLO
+
+			mov mudaMenu, 0
 		
+		JOGAR_INICIAL:
+			cmp menuOP, 1
+			jne TOP10_M_INICIAL
+		;	CALL NOVO_JOGO
+			jmp MENU_CICLO
+		TOP10_M_INICIAL:
+			cmp menuOP, 2
+			jne SAIR_INICIAL
+			CALL TOP10
+			jmp MENU_CICLO
+		SAIR_INICIAL:
+			cmp menuOP, 3
+			jne MENU_CICLO
+			CALL APAGA_ECRAN
+					
 Fim:
 	mov		ah,4CH
 	INT		21H
