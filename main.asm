@@ -72,7 +72,8 @@ dseg SEGMENT PARA 'DATA'
 	
 	FichMenu		db		'menu.txt',0
 	Erro_Open      	db      'Erro ao tentar iniciar o jogo$'
-	FichTabela      db      'PAINEL.txt',0
+	FichJogo_A      db      'JogoA.txt',0
+	FichJogo_B      db      'JogoB.txt',0
 	FichTop10       db      'TOP10.txt',0
 	Player_Won      db      'WINNER.txt',0
 	Jogo_Acabou     db      'LOSER.txt',0
@@ -340,7 +341,7 @@ cseg segment para public 'code'
 ;********************************************************************************	
 		
 		
-    Menu:
+    Menu_Inicial:
 	    call APAGA_ECRAN
 		goto_xy		0,0
 		lea			dx,FichMenu      	; Carregar para dx o ficheiro que queremos imprimir
@@ -348,24 +349,26 @@ cseg segment para public 'code'
 
 		mov  ah, 07h 					; Espera para que o utilizador insira um caracter
   		int  21h
-  		;cmp  al, '1' 					; Se inserir o numero 1
-  		;je   nivel_basico              	; Vai para o jogo
+  		cmp  al, '1' 					; Se inserir o numero 1
+  		je   nivel_basico              	; Vai para o jogo
   		cmp  al, '2' 					; Se inserir o numero 2
   		je   TOP10 						; Vai para a lista do top10
 		cmp  al, '3' 					; Se inserir o numero 3
 		je   SAIR 						; Sai do programa
-		jmp  Menu 	
+		call APAGA_ECRAN
+		jmp  Menu_Inicial 	
 
 
 ;********************************************************************************
 ; Jogo - Nivel Básico
 
 
-    ;nivel_basico:
-	;    lea  bx
-
-
-
+    nivel_basico:
+		call APAGA_ECRAN
+		goto_xy		0,0
+	    lea  dx,FichJogo_B      	; Carregar para dx o ficheiro que queremos imprimir
+		call IMP_FICH  
+		call LER_SETA
 
 
 
@@ -393,8 +396,9 @@ cseg segment para public 'code'
 		
 		mov ah,07h
 		int 21h
+		goto_xy 0,0
 		call APAGA_ECRAN
-		call main
+		call Menu_Inicial
 		
 	SAIR:
 	    call END_GAME
@@ -1069,56 +1073,8 @@ main  proc
 		mov		es,ax
 
 		call APAGA_ECRAN
+		call Menu_Inicial
 
-		lea     dx,FichTop10
-		CALL    LE_MENU
-		CICLO_INICIAL:
-			goto_xy 26,81
-			CALL 	LE_TECLA
-			cmp		ah, 1
-			je		CICLO_INICIAL
-			CMP 	AL, 27		; ESCAPE
-			JNE		UM
-	
-			mov 	menuOP, 3
-			jmp 	FIM_INICIAL				
-	
-		UM:		
-			CMP 	AL, 49		; Tecla 1
-			JNE		DOIS
-			mov		menuOP, 1	
-			jmp		FIM_INICIAL		
-
-		DOIS:		
-			CMP 	AL, 50		; Tecla 2
-			JNE		FIM_INICIAL
-			mov		menuOP, 2	
-			jmp		FIM_INICIAL		
-
-		FIM_INICIAL: 	
-			CALL APAGA_ECRAN
-			mov 	mudaMenu, 1
-					
-		MENU_CICLO:
-			cmp mudaMenu, 0
-			je MENU_CICLO
-
-			mov mudaMenu, 0
-		
-		JOGAR_INICIAL:
-			cmp menuOP, 1
-			jne TOP10_M_INICIAL
-		;	CALL NOVO_JOGO
-			jmp MENU_CICLO
-		TOP10_M_INICIAL:
-			cmp menuOP, 2
-			jne SAIR_INICIAL
-			CALL TOP10
-			jmp MENU_CICLO
-		SAIR_INICIAL:
-			cmp menuOP, 3
-			jne MENU_CICLO
-			CALL APAGA_ECRAN
 					
 Fim:
 	mov		ah,4CH
