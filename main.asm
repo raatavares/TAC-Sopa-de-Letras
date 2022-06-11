@@ -282,30 +282,30 @@ cseg segment para public 'code'
     ESTEND:	
 	    cmp 	al,48h
 		jne		BAIXO
-		dec		POSy		;cima
+		dec		POSx		;cima
 		jmp		CICLO_assinala
 
 
     BAIXO:	 
 	    cmp		al,50h
 		jne		ESQUERDA
-		inc 	POSy		;Baixo
+		inc 	POSx		;Baixo
 		jmp		CICLO_assinala
 
 
     ESQUERDA:
 		cmp		al,4Bh
 		jne		DIREITA
-		dec		POSx		;Esquerda
-		dec		POSx		;Esquerda
+		dec		POSy
+		dec		POSy		;Esquerda
 		jmp		CICLO_assinala
 		
 
     DIREITA:
 		cmp		al,4Dh
 		jne		LER_SETA 
-		inc		POSx		;Direita
-		inc		POSx		;Direita
+		inc		POSy
+		inc		POSy		;Direita
 		jmp		CICLO_assinala
 
 				; INT 10,9 - Write Character and Attribute at Cursor Position
@@ -369,8 +369,7 @@ cseg segment para public 'code'
 	    lea  dx,FichJogo_B      	; Carregar para dx o ficheiro que queremos imprimir
 		call IMP_FICH  
 		call LER_SETA
-
-
+	
 
 
 
@@ -510,7 +509,7 @@ cseg segment para public 'code'
      
     WINNER proc
 	 
-    FIM_JOGO_GANHO:	 
+    FIM_JOGO_GANHO	:	 
 		call APAGA_ECRAN
 	    goto_xy	0,0   				;apaga o ecra a partir do 0 0
         lea  	dx,Player_Won   	;carregar para dx o ficheiro que queremos imprimir
