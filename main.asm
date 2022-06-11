@@ -46,9 +46,17 @@ dseg SEGMENT PARA 'DATA'
 	Segundos		dw		0				; Guarda os segundos actuais
 	Dia_Mes_Ano     db      "              "
 	Old_seg			dw		0				; Guarda os ultimos segundos que foram lidos
+	DDMMAAAA 		db		"                     "
+	contaSeg 		dw 		0				;contador que regista a varia��o dos segundos/tempo
+	horS			db 		2 dup(?)
+	minS			db 		2 dup(?)
+	segS			db 		2 dup(?)
 	Tempo_init		dw		0				; Guarda o tempo de inicio do jogo
 	Tempo_j			dw		-1				; Guarda o tempo que decorre o jogo
 	Tempo_limite	dw		100				; Tempo maximo de Jogo
+
+	; Main
+
 	String_TJ		db		"     / 100$"
 	Pontuacao       dw      500             ; Guarda a pontuação do jogador
 	Nome_Jogador	db		"          $"   ; Guarda o nome do jogador
@@ -335,7 +343,72 @@ cseg segment para public 'code'
 	assinala_P	endp
 
 
+;********************************************************************************
 
+
+    ADICIONAR_TOP10 proc
+	      goto_xy    0,0
+		  call       APAGA_ECRAN
+		  call       RESETARJOGADOR
+		  mov        si,0
+		  mov        displacement,0
+		  jmp        preencher
+		  
+		  
+	PEQUENA_PONTUACAO:
+	      call       APAGA_ECRAN
+		  goto_xy    10,10
+		  MOSTRA     pont_insuf
+		  mov        ah,07h
+		  int        21h
+		  call       MAIN
+		  
+		  
+	PEQUENA_PONTUACAO2:
+	      cmp        si,270
+		  jae        PEQUENA_PONTUACAO
+		  add        si,30
+		  add        displacement,30
+		  
+		  
+	preencher:
+	      call     EXTRAIR_NUMERO
+		  mov      ax,extrair_pont
+		  cmp      Pontuacao,ax
+		  jbe      PEQUENA_PONTUACAO2
+		  call     NPLAYER
+		  lea      bx,buffer
+		  mov      ax,Pontuacao
+		  add      displacement,20
+		  call     PRINTDIGITPLUS
+		  lea      dx,FichTop10
+		  lea      si,buffer
+		  mov      tamanho_matriz,290
+		  call     EXPORTARMATRIX
+		  
+	
+	ADICIONAR_TOP10 endp
+
+;********************************************************************************
+
+
+	TOP10 proc
+	    call APAGA_ECRAN
+	    goto_xy 0,0
+        lea dx, FichTop10  ; Colocar em dx o ficheiro com a lista do TOP10
+		call IMP_FICH     ; Imprimir ficheiro
+		
+		mov ah,07h
+		int 21h
+		goto_xy 0,0
+		call APAGA_ECRAN
+		call Menu_Inicial
+		
+	SAIR:
+	    call END_GAME
+
+
+	TOP10 endp
 
 	
 ;********************************************************************************	
@@ -368,7 +441,19 @@ cseg segment para public 'code'
 		goto_xy		0,0
 	    lea  dx,FichJogo_B      	; Carregar para dx o ficheiro que queremos imprimir
 		call IMP_FICH  
+		mov horS[0], 0	
+		mov horS[1], 0	
+		mov minS[0], 0	
+		mov minS[1], 0
+		mov segS[0], 0	
+		mov segS[1], 0
+		mov Horas, 0 ; iniciou o jogo
+		mov Minutos, 0 ; iniciou o jogo
+		mov Segundos, 0 ; iniciou o jogo
 		call LER_SETA
+		call APAGA_ECRAN
+		call ADICIONAR_TOP10
+		call Menu_Inicial
 	
 
 
@@ -377,33 +462,31 @@ cseg segment para public 'code'
 ; Jogo - Nivel Avançado
 
 
-    ;nivel_avancado:
-
-
-
-
-
-
-;********************************************************************************
-
-
-	TOP10 proc
-	    call APAGA_ECRAN
-	    goto_xy 0,0
-        lea dx, FichTop10  ; Colocar em dx o ficheiro com a lista do TOP10
-		call IMP_FICH     ; Imprimir ficheiro
-		
-		mov ah,07h
-		int 21h
-		goto_xy 0,0
+    nivel_avancado:
 		call APAGA_ECRAN
+		goto_xy		0,0
+	    lea  dx,FichJogo_B      	; Carregar para dx o ficheiro que queremos imprimir
+		call IMP_FICH  
+		mov horS[0], 0	
+		mov horS[1], 0	
+		mov minS[0], 0	
+		mov minS[1], 0
+		mov segS[0], 0	
+		mov segS[1], 0
+		mov Horas, 0 ; iniciou o jogo
+		mov Minutos, 0 ; iniciou o jogo
+		mov Segundos, 0 ; iniciou o jogo
+		call LER_SETA
+		call APAGA_ECRAN
+		call ADICIONAR_TOP10
 		call Menu_Inicial
-		
-	SAIR:
-	    call END_GAME
 
 
-	TOP10 endp
+
+
+
+
+
 	
 	
 ;********************************************************************************
@@ -763,51 +846,6 @@ cseg segment para public 'code'
 	RESETARJOGADOR endp
 
 		   
-;********************************************************************************
-
-
-    ADICIONAR_TOP10 proc
-	      goto_xy    0,0
-		  call       APAGA_ECRAN
-		  call       RESETARJOGADOR
-		  mov        si,0
-		  mov        displacement,0
-		  jmp        preencher
-		  
-		  
-	PEQUENA_PONTUACAO:
-	      call       APAGA_ECRAN
-		  goto_xy    10,10
-		  MOSTRA     pont_insuf
-		  mov        ah,07h
-		  int        21h
-		  call       MAIN
-		  
-		  
-	PEQUENA_PONTUACAO2:
-	      cmp        si,270
-		  jae        PEQUENA_PONTUACAO
-		  add        si,30
-		  add        displacement,30
-		  
-		  
-	preencher:
-	      call     EXTRAIR_NUMERO
-		  mov      ax,extrair_pont
-		  cmp      Pontuacao,ax
-		  jbe      PEQUENA_PONTUACAO2
-		  call     NPLAYER
-		  lea      bx,buffer
-		  mov      ax,Pontuacao
-		  add      displacement,20
-		  call     PRINTDIGITPLUS
-		  lea      dx,FichTop10
-		  lea      si,buffer
-		  mov      tamanho_matriz,290
-		  call     EXPORTARMATRIX
-		  
-	
-	ADICIONAR_TOP10 endp
 	      
 		  
 ;********************************************************************************
