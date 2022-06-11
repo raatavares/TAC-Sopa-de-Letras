@@ -137,27 +137,31 @@ cseg segment para public 'code'
    	
 		
 	APAGA_ECRAN	proc
-			PUSH BX
-		PUSH AX
-		PUSH CX
-		PUSH SI
-		XOR	BX,BX
-		MOV	CX,24*80
-		mov bx,160
-		MOV SI,BX
+		PUSH  BX
+		PUSH  AX
+		PUSH  CX
+		PUSH  SI
+		XOR	  BX,BX
+		MOV	  CX,24*80
+		mov   bx,160
+		MOV   SI,BX
+		
+		
 	APAGA:	
-		MOV	AL,' '
-		MOV	BYTE PTR ES:[BX],AL
-		MOV	BYTE PTR ES:[BX+1],7
-		INC	BX
-		INC BX
-		INC SI
-		LOOP	APAGA
-		POP SI
-		POP CX
-		POP AX
-		POP BX
+		MOV	 AL,' '
+		MOV	 BYTE PTR ES:[BX],AL
+		MOV	 BYTE PTR ES:[BX+1],7
+		INC	 BX
+		INC  BX
+		INC  SI
+		LOOP APAGA
+		POP  SI
+		POP  CX
+		POP  AX
+		POP  BX
 		RET
+		
+		
     APAGA_ECRAN	endp
 
 
@@ -181,12 +185,14 @@ cseg segment para public 'code'
 		jc      ERRO_ABRIR_MENU				; pode aconter erro a abrir o ficheiro 
 		mov     handleFich,ax			; ax devolve o Handle para o ficheiro 
 		jmp     LER_CICLO_MENU				; depois de abero vamos ler o ficheiro 
+		
 
 	ERRO_ABRIR_MENU:
 		mov     ah,09h
 		lea     dx,msgErrorOpen
 		int     21h
 		jmp     SAI
+		
 
 	LER_CICLO_MENU:
 		mov     ah,3fh				; indica que vai ser lido um ficheiro 
@@ -202,6 +208,7 @@ cseg segment para public 'code'
 		int	    21h					; imprime no ecran
 		jmp	    LER_CICLO_MENU			; continua a ler o ficheiro
 
+
 	ERRO_LER_MENU:
 		mov     ah,09h
 		lea     dx,msgErrorRead
@@ -216,6 +223,8 @@ cseg segment para public 'code'
 		mov     ah,09h			; o ficheiro pode não fechar correctamente
 		lea     dx,msgErrorCloseRead
 		Int     21h
+		
+		
 	SAI:
 	;	mov 	STR12[0], 190
 	;	mov 	STR12[1], '$'
@@ -236,11 +245,14 @@ cseg segment para public 'code'
 		
 		GOTO_XY POSy,POSx
 		ret
+		
+		
 	LE_MENU	endp
 		
 				
 ;********************************************************************************
 ; Assinala caracter no ecran	
+
 
     assinala_P	PROC
 
