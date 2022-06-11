@@ -3,16 +3,16 @@
 *******************************************************************************
 **                                                                           **
 **                                                                           **
-**  A S S E M P P L Y I  **********  ASM                                     **
-**  J O L Y D E N L I D  **********  TECNOLOGIA                              **
-**  C T M P R O G P H S  **********  MOV                                     **
-**  U A S M I N O P S P  **********  PROG                                    **
-**  R C F K U O R E V O  **********  ISEC                                    **
-**  N I S E C L M F S W  **********  TAC                                     **
+**  A S S E M B L Y T I  **********  ASM                                     **
+**  J O L Y D E N L E D  **********  TECNOLOGIA                              **
+**  C T M P R O G P C S  **********  MOV                                     **
+**  U A S M I N O P N P  **********  PROG                                    **
+**  R C F K U O R E O O  **********  ISEC                                    **
+**  N I S E C L M F L W  **********  TAC                                     **
 **  D W M I T E X T O O  **********  TEXTO                                   **
-**  I A S M L G I S V O  **********  ASSEMBLY                                **
-**  J E L M O I C X O R  **********                                          **
-**  L E Q R V A A D M Y  **********                                          **
+**  I A S M L G I S G V  **********  ASSEMBLY                                **
+**  T A C M O I C X I O  **********                                          **
+**  L E Q R V A A D A M  **********                                          **
 **                                                                           **
 **                                                                           **
 *******************************************************************************
