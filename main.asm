@@ -36,7 +36,6 @@ dseg SEGMENT PARA 'DATA'
 ;********************************************************************************
 
 
-
     ; CONTADOR
 	
 	
@@ -55,7 +54,9 @@ dseg SEGMENT PARA 'DATA'
 	Tempo_j			dw		-1				; Guarda o tempo que decorre o jogo
 	Tempo_limite	dw		100				; Tempo maximo de Jogo
 
+
 	; Main
+
 
 	String_TJ		db		"     / 100$"
 	Pontuacao       dw      500             ; Guarda a pontuação do jogador
@@ -76,7 +77,10 @@ dseg SEGMENT PARA 'DATA'
 	menuOP 			db	 	?
 	bufferUser		db		255 dup (32)
 	i 				db 		0
+	
+	
 	; FICHEIROS
+	
 	
 	FichMenu		db		'menu.txt',0
 	Erro_Open      	db      'Erro ao tentar iniciar o jogo$'
@@ -91,12 +95,48 @@ dseg SEGMENT PARA 'DATA'
 	
 	
 	; mensagens de erro ficheiros
+	
+	
 	msgErrorOpen       	db	"Erro ao tentar abrir o ficheiro$"
 	msgErrorRead    	db	"Erro ao tentar ler o ficheiro$"
     msgErrorCloseRead	db	"Erro ao tentar fechar o ficheiro$"
 	msgErrorCreate      db  "Erro na criacao do ficheiro$"
 	msgErrorWrite       db  "Erro na escrita do ficheiro$"
 	msgErrorClose       db  "Erro no fecho do ficheiro$"
+	
+	
+	; PALAVRAS
+	
+	;Nivel Básico
+	
+	String_Palavra1     db   "ASM$"
+	String_Palavra2     db   "TECNOLOGIA$"
+	String_Palavra3     db   "MOV$"
+	String_Palavra4     db   "PROG$"
+	String_Palavra5     db   "ISEC$"
+	String_Palavra6     db   "TAC$"
+	String_Palavra7     db   "TEXTO$"
+	String_Palavra8     db   "ASSEMBLY$"
+	
+	
+	;Nivel Avançado
+	
+	String_Palavra9     db   "INSTITUTO$"
+	String_Palavra10    db   "LINGUAGEM$"
+	String_Palavra11    db   "LETRA$"
+	String_Palavra12    db   "NOTEPAD$"
+	String_Palavra13    db   "DOSBOX$"
+	String_Palavra14    db   "GITHUB$"
+	String_Palavra15    db   "INFORMATICA$"
+	String_Palavra16    db   "VISUAL$"
+	String_Palavra17    db   "IMPOSSIVEL$"
+	String_Palavra18    db   "TECNOLOGIAS$"
+	String_Palavra19    db   "CADEIRA$"
+	String_Palavra20    db   "MATEMATICA$"
+ 	
+	
+	
+	
 	
 
 	
