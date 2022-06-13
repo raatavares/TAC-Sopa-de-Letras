@@ -168,11 +168,13 @@ cseg segment para public 'code'
 ;********************************************************************************
 ; MOSTRA - Faz o display de uma string terminada em $
 
+
 	MOSTRA MACRO STR 
 		MOV AH,09H
 		LEA DX,STR 
 		INT 21H
 	ENDM
+	
 
 	; FIM DAS MACROS
 	
@@ -242,6 +244,7 @@ cseg segment para public 'code'
 	;	mov 	STR12[1], '$'
 	;	GOTO_XY 10,65
 	;	MOSTRA STR12
+		
 		
 		GOTO_XY POSy,POSx
 		ret
