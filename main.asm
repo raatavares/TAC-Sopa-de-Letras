@@ -36,7 +36,7 @@ dseg SEGMENT PARA 'DATA'
 ;********************************************************************************
 
 
-    ; CONTADOR
+    ; Contador
 	
 	
 	timer			dw 	    0				; Contador de tempo
@@ -78,8 +78,8 @@ dseg SEGMENT PARA 'DATA'
 	bufferUser		db		255 dup (32)
 	i 				db 		0
 	
-	
-	; FICHEIROS
+
+	; Ficheiros
 	
 	
 	FichMenu		db		'menu.txt',0
@@ -94,7 +94,7 @@ dseg SEGMENT PARA 'DATA'
 	carFich			db      ?
 	
 	
-	; mensagens de erro ficheiros
+	; Mensagens de erro ficheiros
 	
 	
 	msgErrorOpen       	db	"Erro ao tentar abrir o ficheiro$"
@@ -105,8 +105,7 @@ dseg SEGMENT PARA 'DATA'
 	msgErrorClose       db  "Erro no fecho do ficheiro$"
 	
 	
-	; PALAVRAS
-	
+	; Palavras
 	;Nivel Básico
 	
 	String_Palavra1     db   "ASM$"
