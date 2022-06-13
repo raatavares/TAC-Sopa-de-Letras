@@ -134,12 +134,8 @@ dseg SEGMENT PARA 'DATA'
 	String_Palavra20    db   "MATEMATICA$"
  	
 	
-	
-	
-	
-
-	
 dseg ENDS
+
 
 cseg segment para public 'code'
      assume cs:cseg, ds:dseg
