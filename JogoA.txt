@@ -1,25 +1,25 @@
-*******************************************************************************************
-***                                                                                     ***
-**                                                                                       **
-* C L W T B B I D T I W P F C O I P C D A C V B N F J K L O M **                          * 
-* J O L Y D V N L I D A R A D D O P S G H J K L Z X C V B N A ** INSTITUTO                *
-* C T G I T H U B H S W L Z P A A I N S T I T U T O A B C D T ** LINGUAGEM                *
-* U A M P I Q O P S P Z E C O A B C D H A B D O O L L C A E E ** LETRA                    *
-* R C F D U A R E V O E T G J A B A C J E L O O V A G E M A M ** NOTEPAD                  *
-* N A D O B T M F S W Y R Y H A A A A D W M S T B A C T O P A ** DOSBOX                   *
-* D W M S T B A C T O P A L B A I N F O R M A T I C A A R A T ** GITHUB                   *
-* I A S B L F I S O O Q C V G A T C Y O L L B N A Y P O A A I ** INFORMATICA              *
-* J E L O O V C X O R E A Q F A P L I N G U A G E M A A A A C ** VISUAL                   *
-* L E Q X V B A D M Y E O W D N A D O B T A A A C A D E I R A ** IMPOSSIVEL               *
-* N O T E P A D G I A S S E S W T B B I D T I W P F X C V V K ** TECNOLOGIAS              *
-* N C C P Z X L Y E R U S R A A A A I M P O S S I V E L A A N ** CADEIRA                  *
-* T U A C T L L P I A P S T P I C D A G A T C Y O L L B N A M ** MATEMATICA               *
-* T E C N O L O G I A S S Y O U I O A P Q W E R Z X C V V R L **                          *  
-* A T C Y O L L B N A Y P O W I T O V I S U A L T W D M N Z Z **                          *
-**                                                                                       **
-***                                                                                     ***
-*******************************************************************************************
-**   ***  ***  ***  ***  ***    ENTER para assinalar uma letra    ***  ***   ***   ***   **
-*******************************************************************************************
-**   ***  ***  ***  ***  ***           ESC para sair              ***  ***   ***   ***   **
-*******************************************************************************************
+
+*******************************************************************************
+***                                                                         ***
+**                                                                           **
+* C L W T B B I D T I W P F C O I P C D A C V B N F J K L O M **              *
+* J O L Y D V N L I D A R A D D O P S G H J K L Z X C V B N A ** INSTITUTO    *
+* C T G I T H U B H S W L Z P A A I N S T I T U T O A B C D T ** LINGUAGEM    *
+* U A M P I Q O P S P Z E C O A B C D H A B D O O L L C A E E ** LETRA        *
+* R C F D U A R E V O E T G J A B A C J E L O O V A G E M A M ** NOTEPAD      *
+* N A D O B T M F S W Y R Y H A A A A D W M S T B A C T O P A ** DOSBOX       *
+* D W M S T B A C T O P A L B A I N F O R M A T I C A A R A T ** GITHUB       *
+* I A S B L F I S O O Q C V G A T C Y O L L B N A Y P O A A I ** INFORMATICA  *
+* J E L O O V C X O R E A Q F A P L I N G U A G E M A A A A C ** VISUAL       *
+* L E Q X V B A D M Y E O W D N A D O B T A A A C A D E I R A ** IMPOSSIVEL   *
+* N O T E P A D G I A S S E S W T B B I D T I W P F X C V V K ** TECNOLOGIAS  *
+* N C C P Z X L Y E R U S R A A A A I M P O S S I V E L A A N ** CADEIRA      *
+* T U A C T L L P I A P S T P I C D A G A T C Y O L L B N A M ** MATEMATICA   *
+* T E C N O L O G I A S S Y O U I O A P Q W E R Z X C V V R L **              *
+* A T C Y O L L B N A Y P O W I T O V I S U A L T W D M N Z Z **              *
+***                                                                         ***
+*******************************************************************************
+**   ***  ***  ***  ***  ***    ENTER para assinalar uma letra    ***  ***   **
+*******************************************************************************
+**   ***  ***  ***  ***  ***           ESC para sair              ***  ***   **
+*******************************************************************************

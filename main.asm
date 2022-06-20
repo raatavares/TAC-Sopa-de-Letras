@@ -89,6 +89,7 @@ dseg SEGMENT PARA 'DATA'
 	FichTop10       db      'TOP10.txt',0
 	Player_Won      db      'WINNER.txt',0
 	Jogo_Acabou     db      'LOSER.txt',0
+	FichMenu_Niveis db		'Menu2.txt',0
 	
 	handleFich 		dw      0
 	carFich			db      ?
@@ -473,13 +474,35 @@ cseg segment para public 'code'
 		mov  ah, 07h 					; Espera para que o utilizador insira um caracter
   		int  21h
   		cmp  al, '1' 					; Se inserir o numero 1
-  		je   nivel_basico              	; Vai para o jogo
+  		je   Menu_Niveis              	; Vai para o jogo
   		cmp  al, '2' 					; Se inserir o numero 2
   		je   TOP10 						; Vai para a lista do top10
 		cmp  al, '3' 					; Se inserir o numero 3
 		je   SAIR 						; Sai do programa
 		call APAGA_ECRAN
 		jmp  Menu_Inicial 	
+
+;********************************************************************************
+; Jogo - MENU NIVEIS
+
+	Menu_Niveis:
+		call APAGA_ECRAN
+		goto_xy		0,0
+		lea			dx,FichMenu_Niveis      	; Carregar para dx o ficheiro que queremos imprimir
+		call		IMP_FICH  			; Imprimir o ficheiro
+
+		mov  ah, 07h 					; Espera para que o utilizador insira um caracter
+  		int  21h
+  		cmp  al, '1' 					; Se inserir o numero 1
+  		je   nivel_basico              	; Vai para o jogo
+  		cmp  al, '2' 					; Se inserir o numero 2
+  		je   nivel_avancado 						; Vai para o nivel avançado
+		cmp  al, '3' 					; Se inserir o numero 3
+		je   SAIR 						; Sai do programa
+		call APAGA_ECRAN
+		jmp  Menu_Niveis 	
+
+
 
 
 ;********************************************************************************
@@ -515,7 +538,7 @@ cseg segment para public 'code'
     nivel_avancado:
 		call APAGA_ECRAN
 		goto_xy		0,0
-	    lea  dx,FichJogo_B      	; Carregar para dx o ficheiro que queremos imprimir
+	    lea  dx,FichJogo_A      	; Carregar para dx o ficheiro que queremos imprimir
 		call IMP_FICH  
 		mov horS[0], 0	
 		mov horS[1], 0	
