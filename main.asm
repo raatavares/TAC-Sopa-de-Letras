@@ -896,66 +896,7 @@ cseg segment para public 'code'
 	RESETARJOGADOR endp
 
 		   
-	      
-		  
-;********************************************************************************
 
-
-    NPLAYER proc                                     ; Introduzir nome de utilizador
-	      xor si,si
-	      mov cx,10					
-	      mov bx,displacement			
-
-
-    res_player:						
-	      mov       buffer[bx+si],' '		
-	      inc       si						
-	      loop      res_player				
-	      xor       si,si
-	      goto_xy   10,10
-	      mostra    introduzir_nome
-	      mov       POSxplayer,29
-	      mov       POSyplayer,10
-
-
-    jogador:
-	     goto_xy   POSxplayer ,POSyplayer 
-	     mov       ah,07h
-  	     int       21h
-
-
-    ciclo_NPLAYER:	
-	     cmp    al ,0DH
-	     je     sos
-	     cmp    al,'A'
-	     jb     jogador
-	     cmp    al,'Z'
-	     ja     jogador
-	     jmp    letra
-
-
-    letra:
-	     mov    nomeplayerText[si],al
-	     mov    bx,displacement
-	     mov    buffer[si+bx],al		; salva o input na matriz buffer
-      	 inc    si
-	     cmp    si, 10
-	     je     sos
-	     jmp    nic
-
-
-    nic:
-	     goto_xy    29 ,10
-	     mostra     nomeplayerTEXT
-	     inc        POSxplayer
-	     jmp        NPLAYER
-
-
-    sos:
-	     RET
-		 
-		 
-    NPLAYER endp
 	
 
 ;********************************************************************************
@@ -1153,6 +1094,70 @@ cseg segment para public 'code'
 	
 ;********************************************************************************
 
+
+
+
+    NPLAYER proc                                     ; Introduzir nome de utilizador
+	      xor si,si
+	      mov cx,10					
+	      mov bx,displacement			
+
+
+    res_player:						
+	      mov       buffer[bx+si],' '		
+	      inc       si						
+	      loop      res_player				
+	      xor       si,si
+	      goto_xy   10,10
+	      mostra    introduzir_nome
+	      mov       POSxplayer,29
+	      mov       POSyplayer,10
+
+
+    jogador:
+	     goto_xy   POSxplayer ,POSyplayer 
+	     mov       ah,07h
+  	     int       21h
+
+
+    ciclo_NPLAYER:	
+		 CMP 	AL, 27	; ESCAPE
+		 JE		main
+	     cmp    al ,0DH
+	     je     sos
+	     cmp    al,'A'
+	     jb     jogador
+	     cmp    al,'Z'
+	     ja     jogador
+	     jmp    letra
+		 
+
+
+    letra:
+	     mov    nomeplayerText[si],al
+	     mov    bx,displacement
+	     mov    buffer[si+bx],al		; salva o input na matriz buffer
+      	 inc    si
+	     cmp    si, 10
+	     je     sos
+	     jmp    nic
+
+
+    nic:
+	     goto_xy    29 ,10
+	     mostra     nomeplayerTEXT
+	     inc        POSxplayer
+	     jmp        NPLAYER
+
+
+    sos:
+	     RET
+		 
+		 
+    NPLAYER endp
+	
+			  
+;********************************************************************************
 main  proc
 		mov     ax, dseg
 		mov     ds, ax
