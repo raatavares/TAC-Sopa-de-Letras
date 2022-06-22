@@ -59,7 +59,7 @@ dseg SEGMENT PARA 'DATA'
 
 
 	String_TJ		db		"     / 100$"
-	Pontuacao       dw      500             ; Guarda a pontuação do jogador
+	Pontuacao       dw      0             ; Guarda a pontuação do jogador
 	Nome_Jogador	db		"          $"   ; Guarda o nome do jogador
 	displacement    dw      ?
 	pont_insuf      db      "Pontuacao insuficiente para TOP10"
@@ -133,6 +133,13 @@ dseg SEGMENT PARA 'DATA'
 	String_Palavra18    db   "TECNOLOGIAS$"
 	String_Palavra19    db   "CADEIRA$"
 	String_Palavra20    db   "MATEMATICA$"
+	
+	palavra		db		"          $"
+	pos 				db 		0
+	percorre	db	0
+	jogo	db	0
+	palavraCerta	db	0
+	modoJogo	db	0
  	
 	
 dseg ENDS
@@ -140,7 +147,106 @@ dseg ENDS
 
 cseg segment para public 'code'
      assume cs:cseg, ds:dseg
-	 
+	
+	ADICIONA_LETRA proc
+		mov 	ah, 08h
+		mov		bh,0		; numero da página
+		int		10h		
+		;mov		palavra[pos], al
+		inc 	pos
+	;	call VERIFICA_PALAVRA
+		ret
+	
+	ADICIONA_LETRA endp
+	
+	
+	;VERIFICA_PALAVRA proc
+	;	mov percorre, 0
+		;lea esi, [palavra]
+		;mov ecx, 5  ; selects the length of the first string as maximum for comparison
+	;	cmp jogo, 2
+	;	je VERIFICA_PALAVRA_A
+		
+	;	VERIFICA_PALAVRA_B:
+	;		lea edi, [String_Palavra1]
+	;		mov ecx, 5  ; selects the length of the first string as maximum for comparison
+	;		rep cmpsb         ; comparison of ECX number of bytes~
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra2]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra3]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra4]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra5]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra6]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra7]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra8]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		ret
+		
+		
+	;	VERIFICA_PALAVRA_A:
+	;		lea edi, [String_Palavra9]
+	;		rep cmpsb         ; comparison of ECX number of bytes~
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra10]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra11]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra12]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra13]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra14]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra15]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra16]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra17]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra18]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra19]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		lea edi, [String_Palavra20]
+	;		rep cmpsb
+	;		je PALAVRA_CERTA
+	;		ret
+		
+	;	PALAVRA_CERTA:
+	;		inc palavraCerta
+			; PALAVRA CERTA ESTÁ NO EDI
+	;		mov 	ah, 08h
+	;		int		10h
+	;		call ADICIONARPONTOS
+	;		call MOVER_PONTOS
+	;		ret
+		
+		
+	;VERIFICA_PALAVRA endp
+	
 	;MAIN PROC FAR
 	;
 	;	MOV AH,00h	;set the configuration to video mode		
@@ -288,110 +394,7 @@ cseg segment para public 'code'
 		
 	LE_MENU	endp
 		
-				
-;********************************************************************************
-; Assinala caracter no ecran	
 
-
-    assinala_P	PROC
-
-
-    CICLO_assinala:	
-		; goto_xy	POSxa,POSya	; Vai para a posição anterior do cursor
-		; mov		ah, 02h
-		; mov		dl, Car	; Repoe Caracter guardado 
-		; int		21H		
-		
-		goto_xy	POSx,POSy	; Vai para nova posição
-		mov 	ah, 08h
-		mov		bh,0		; numero da página
-		int		10h		
-		mov		Car, al		; Guarda o Caracter que está na posição do Cursor
-		mov		Cor, ah		; Guarda a cor que está na posição do Cursor
-		goto_xy	78,0		; Mostra o caractereque estava na posição do AVATAR
-		mov		ah, 02h		; IMPRIME caracter da posição no canto
-		mov		dl, Car	
-		int		21H			
-		goto_xy	POSx,POSy	; Vai para posição do cursor
-		
-		
-    IMPRIME:	
-		; mov		ah, 02h
-		; mov		dl, 190		; Coloca AVATAR
-		; int		21H	
-		; goto_xy	POSx,POSy	; Vai para posição do cursor
-		
-		; mov		al, POSx	; Guarda a posição do cursor	
-		; mov		POSxa, al
-		; mov		al, POSy	; Guarda a posição do cursor
-		; mov 	POSya, al
-		
-		
-    LER_SETA:	
-		call 	LE_TECLA
-		cmp		ah, 1
-		je		ESTEND
-		CMP 	AL, 27	; ESCAPE
-		JE		fim_assinala
-		CMP		AL, 13
-		je		ASSINALA
-		jmp		LER_SETA
-		
-		
-    ESTEND:	
-	    cmp 	al,48h
-		jne		BAIXO
-		dec		POSx		;cima
-		jmp		CICLO_assinala
-
-
-    BAIXO:	 
-	    cmp		al,50h
-		jne		ESQUERDA
-		inc 	POSx		;Baixo
-		jmp		CICLO_assinala
-
-
-    ESQUERDA:
-		cmp		al,4Bh
-		jne		DIREITA
-		dec		POSy
-		dec		POSy		;Esquerda
-		jmp		CICLO_assinala
-		
-
-    DIREITA:
-		cmp		al,4Dh
-		jne		LER_SETA 
-		inc		POSy
-		inc		POSy		;Direita
-		jmp		CICLO_assinala
-
-				; INT 10,9 - Write Character and Attribute at Cursor Position
-				; AH = 09
-				; AL = ASCII character to write
-				; BH = display page  (or mode 13h, background pixel value)
-				; BL = character attribute (text) foreground color (graphics)
-				; CX = count of characters to write (CX >= 1)
-				
-				
-    ASSINALA:
-		mov		bl, cor
-		not		bl
-		mov		cor, bl
-		mov 	ah, 09h
-		mov		al, car
-		mov		bh, 0
-		mov		cx, 1
-		int		10h
-		jmp		CICLO_assinala
-    
-	
-	fim_assinala:	
-		RET
-    
-	
-	assinala_P	endp
 
 
 ;********************************************************************************
@@ -466,6 +469,8 @@ cseg segment para public 'code'
 		
 		
     Menu_Inicial:
+		mov Pontuacao, 0
+		mov modoJogo, 0
 	    call APAGA_ECRAN
 		goto_xy		0,0
 		lea			dx,FichMenu      	; Carregar para dx o ficheiro que queremos imprimir
@@ -478,6 +483,7 @@ cseg segment para public 'code'
   		cmp  al, '2' 					; Se inserir o numero 2
   		je   TOP10 						; Vai para a lista do top10
 		cmp  al, '3' 					; Se inserir o numero 3
+
 		je   SAIR 						; Sai do programa
 		call APAGA_ECRAN
 		jmp  Menu_Inicial 	
@@ -502,7 +508,7 @@ cseg segment para public 'code'
 		call APAGA_ECRAN
 		jmp  Menu_Niveis 	
 
-
+	
 
 
 ;********************************************************************************
@@ -523,9 +529,10 @@ cseg segment para public 'code'
 		mov Horas, 0 ; iniciou o jogo
 		mov Minutos, 0 ; iniciou o jogo
 		mov Segundos, 0 ; iniciou o jogo
+		mov modoJogo, 1
 		call LER_SETA
 		call APAGA_ECRAN
-		call ADICIONAR_TOP10
+		call WINNER
 		call Menu_Inicial
 	
 
@@ -551,7 +558,7 @@ cseg segment para public 'code'
 		mov Segundos, 0 ; iniciou o jogo
 		call LER_SETA
 		call APAGA_ECRAN
-		call ADICIONAR_TOP10
+		call WINNER
 		call Menu_Inicial
 
 
@@ -700,6 +707,80 @@ cseg segment para public 'code'
     WINNER endp
 
 
+;########################################################################
+; IMPRIME O TEMPO E A DATA NO MONITOR
+
+TRATA_HORAS_JOGO PROC
+
+	PUSHF
+	PUSH AX
+	PUSH BX
+	PUSH CX
+	PUSH DX		
+
+	cmp 	modoJogo, 0
+	je 		FIM_HORAS
+	CALL 	LER_TEMPO				; Horas MINUTOS e segundos do Sistema
+	
+	MOV		AX, contaSeg
+	;cmp		AX, Old_seg			; VErifica se os segundos mudaram desde a ultima leitura
+	;je		FIM_HORAS			; Se a hora não mudou desde a última leitura sai.
+	mov		Old_seg, AX			; Se segundos são diferentes actualiza informação do tempo
+
+	inc Segundos
+	cmp Segundos, 60
+	jne CONTINUA
+	mov Segundos, 0
+	inc Minutos
+	cmp Minutos, 60
+	jne CONTINUA
+	mov Minutos, 0
+	inc Horas
+	cmp Horas, 24
+	jne CONTINUA
+	mov Horas, 0 
+	jmp CONTINUA
+	
+	FIM_HORAS:		
+		POPF
+		POP DX		
+		POP CX
+		POP BX
+		POP AX
+		RET	
+	
+	CONTINUA:		
+		mov 	ax,Minutos
+		MOV 	bl, 10     
+		div 	bl
+		add 	al, 30h				; Caracter Correspondente às dezenas
+		add		ah,	30h				; Caracter Correspondente às unidades
+		MOV 	STR12[0],al			; 
+		MOV 	STR12[1],ah
+		MOV 	STR12[2],':'		
+		MOV 	STR12[3],'$'
+		goto_xy	16,58
+		MOSTRA	STR12 		
+		
+		mov 	ax,Segundos
+		MOV 	bl, 10     
+		div 	bl
+		add 	al, 30h				; Caracter Correspondente às dezenas
+		add		ah,	30h				; Caracter Correspondente às unidades
+		MOV 	STR12[0],al			; 
+		MOV 	STR12[1],ah
+		MOV 	STR12[2],'$'	
+		goto_xy	16, 62
+		MOSTRA	STR12 			
+			
+		goto_xy	POSy,POSx			; Volta a colocar o cursor onde estava antes de actualizar as horas
+		jmp FIM_HORAS
+
+	
+			
+TRATA_HORAS_JOGO ENDP
+
+
 ;********************************************************************************
 ; TEMPO - Analisa a data do sistema e coloca numa string com a forma DD/MM/AAAA
 ; CX - Ano | DH - Mês | DL - Dia
@@ -844,7 +925,15 @@ cseg segment para public 'code'
 ; LE UMA TECLA	
 
     LE_TECLA	PROC
-
+	sem_tecla:
+		call 	TRATA_HORAS_JOGO
+		mov ah, 0bh
+		int 21h
+		cmp al, 0
+		je sem_tecla
+		
+		goto_xy POSy, POSx
+		
 		mov		ah,08h
 		int		21h
 		mov		ah,0
@@ -860,8 +949,119 @@ cseg segment para public 'code'
 	
 	LE_TECLA	endp
 
-
+				
 ;********************************************************************************
+; Assinala caracter no ecran	
+
+
+    assinala_P	PROC
+
+
+    CICLO_assinala:	
+		; goto_xy	POSxa,POSya	; Vai para a posição anterior do cursor
+		; mov		ah, 02h
+		; mov		dl, Car	; Repoe Caracter guardado 
+		; int		21H		
+		
+		goto_xy	POSx,POSy	; Vai para nova posição
+		mov 	ah, 08h
+		mov		bh,0		; numero da página
+		int		10h		
+		mov		Car, al		; Guarda o Caracter que está na posição do Cursor
+		mov		Cor, ah		; Guarda a cor que está na posição do Cursor
+		goto_xy	78,0		; Mostra o caractereque estava na posição do AVATAR
+		mov		ah, 02h		; IMPRIME caracter da posição no canto
+		mov		dl, Car	
+		int		21H			
+		goto_xy	POSx,POSy	; Vai para posição do cursor
+		
+		
+    IMPRIME:	
+		; mov		ah, 02h
+		; mov		dl, 190		; Coloca AVATAR
+		; int		21H	
+		; goto_xy	POSx,POSy	; Vai para posição do cursor
+		
+		; mov		al, POSx	; Guarda a posição do cursor	
+		; mov		POSxa, al
+		; mov		al, POSy	; Guarda a posição do cursor
+		; mov 	POSya, al
+		
+		
+    LER_SETA:		
+		xor si, si
+		call 	LE_TECLA
+		cmp		ah, 1
+		je		ESTEND
+		CMP 	AL, 27	; ESCAPE
+		JE		GAME_OVER
+		CMP		AL, 13
+		je		ASSINALA
+		CMP		AL, 32 ; SPACE
+		je		DESASSINALA
+		jmp		LER_SETA
+		
+		
+    ESTEND:	
+	    cmp 	al,48h
+		jne		BAIXO
+		dec		POSy		;cima
+		jmp		CICLO_assinala
+
+
+    BAIXO:	 
+	    cmp		al,50h
+		jne		ESQUERDA
+		inc 	POSy		;Baixo
+		jmp		CICLO_assinala
+
+
+    ESQUERDA:
+		cmp		al,4Bh
+		jne		DIREITA
+		dec		POSx
+		dec		POSx		;Esquerda
+		jmp		CICLO_assinala
+		
+
+    DIREITA:
+		cmp		al,4Dh
+		jne		LER_SETA 
+		inc		POSx
+		inc		POSx		;Direita
+		jmp		CICLO_assinala
+
+				; INT 10,9 - Write Character and Attribute at Cursor Position
+				; AH = 09
+				; AL = ASCII character to write
+				; BH = display page  (or mode 13h, background pixel value)
+				; BL = character attribute (text) foreground color (graphics)
+				; CX = count of characters to write (CX >= 1)
+				
+				
+    ASSINALA:
+		call ADICIONA_LETRA
+		mov		bl, cor
+		not		bl
+		mov		cor, bl
+		mov 	ah, 09h
+		mov		al, car
+		mov		bh, 0
+		mov		cx, 1
+		int		10h
+		jmp		CICLO_assinala
+    
+	DESASSINALA:
+		mov palavra[si], " "
+		inc si
+		cmp si, 12
+		jne DESASSINALA
+		ret
+	    
+	
+	assinala_P	endp
+	
+;****************************************************************************s****
 
 
     GAME_OVER proc
@@ -871,10 +1071,9 @@ cseg segment para public 'code'
 	    goto_xy	0,0   				;apaga o ecra a partir do 0 0
         lea  	dx,Jogo_Acabou		;carregar para dx o ficheiro que queremos imprimir
         call 	IMP_FICH  			;imprimir o ficheiro
-	    goto_xy 45,22				; print da pontuacao
+	    goto_xy 23,68				; print da pontuacao
 	    mov		ax,Pontuacao
 	    call 	PRINTDIGIT
-	    goto_xy 70,22				; print do nivel
 	    mov  	ah, 07h 			; Espera para que o utilizador insira um caracter
   	    int  	21h
 	    cmp     al,'1'
