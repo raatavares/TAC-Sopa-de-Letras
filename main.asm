@@ -40,16 +40,16 @@ dseg SEGMENT PARA 'DATA'
 	
 	
 	timer			dw 	    0				; Contador de tempo
-	Horas			dw		0				; Guarda a hora atual
+	
 	Minutos			dw		0				; Guarda os minutos actuais
 	MinutosInicial			dw		0			
 	SegundosInicial			dw		0					
 	Segundos		dw		0				; Guarda os segundos actuais
-	Dia_Mes_Ano     db      "              "
+	
 	Old_seg			dw		0				; Guarda os ultimos segundos que foram lidos
-	DDMMAAAA 		db		"                     "
+	
 	contaSeg 		dw 		0				;contador que regista a varia��o dos segundos/tempo
-	horS			db 		2 dup(?)
+	
 	minS			db 		2 dup(?)
 	segS			db 		2 dup(?)
 	Tempo_init		dw		0				; Guarda o tempo de inicio do jogo
@@ -345,26 +345,7 @@ cseg segment para public 'code'
 		lea     dx,msgErrorCloseRead
 		Int     21h
 		
-		
 	SAI:
-	;	mov 	STR12[0], 190
-	;	mov 	STR12[1], '$'
-	;	GOTO_XY 10,56
-	;	MOSTRA STR12
-	;	mov 	STR12[0], 195
-	;	mov 	STR12[1], '$'
-	;	GOTO_XY 10,59
-	;	MOSTRA STR12
-	;	mov 	STR12[0], 197
-	;	mov 	STR12[1], '$'
-	;	GOTO_XY 10,62
-	;	MOSTRA STR12
-	;	mov 	STR12[0], 189
-	;	mov 	STR12[1], '$'
-	;	GOTO_XY 10,65
-	;	MOSTRA STR12
-		
-		
 		GOTO_XY POSy,POSx
 		ret
 		
@@ -498,13 +479,10 @@ cseg segment para public 'code'
 		goto_xy		0,0
 	    lea  dx,FichJogo_B      	; Carregar para dx o ficheiro que queremos imprimir
 		call IMP_FICH  
-		mov horS[0], 0	
-		mov horS[1], 0	
 		mov minS[0], 0	
 		mov minS[1], 0
 		mov segS[0], 0	
 		mov segS[1], 0
-		mov Horas, 0 ; iniciou o jogo
 		mov Minutos, 0 ; iniciou o jogo
 		mov Segundos, 0 ; iniciou o jogo
 		mov modoJogo, 1
@@ -530,13 +508,10 @@ cseg segment para public 'code'
 		goto_xy		0,0
 	    lea  dx,FichJogo_A      	; Carregar para dx o ficheiro que queremos imprimir
 		call IMP_FICH  
-		mov horS[0], 0	
-		mov horS[1], 0	
 		mov minS[0], 0	
 		mov minS[1], 0
 		mov segS[0], 0	
 		mov segS[1], 0
-		mov Horas, 0 ; iniciou o jogo
 		mov Minutos, 0 ; iniciou o jogo
 		mov Segundos, 0 ; iniciou o jogo
 		mov modoJogo, 2
@@ -550,13 +525,6 @@ cseg segment para public 'code'
 		call WINNER
 		call Menu_Inicial
 
-
-
-
-
-
-
-	
 	
 ;********************************************************************************
 
@@ -619,7 +587,7 @@ cseg segment para public 'code'
 
 
     ADICIONARPONTOS proc
-	    goto_xy     0,8
+	    goto_xy     3,66
 		add         pontuacao, 10
 		mov         ax, pontuacao
 		call        PRINTDIGIT
@@ -647,7 +615,6 @@ cseg segment para public 'code'
 		mov Minutos, AX         ; Guardar os minutos na respetiva variavel
 		XOR AX,AX
 		MOV AL, CH              ; Mover as horas para AL
-		mov Horas,AX			; Guardar as horas na respetiva variavel
 		POPF
 		POP DX
 		POP CX
@@ -748,10 +715,6 @@ TRATA_HORAS_JOGO PROC
 	cmp Minutos, 60
 	jne CONTINUA
 	mov Minutos, 0
-	inc Horas
-	cmp Horas, 24
-	jne CONTINUA
-	mov Horas, 0
 	JMP CONTINUA
 	
 	FIM_HORAS:		
@@ -760,7 +723,6 @@ TRATA_HORAS_JOGO PROC
 		POP CX
 		POP BX
 		POP AX
-		;call WINNER
 		RET	
 	
 	CONTINUA:		
@@ -789,128 +751,8 @@ TRATA_HORAS_JOGO PROC
 			
 		goto_xy	POSy,POSx			; Volta a colocar o cursor onde estava antes de actualizar as horas
 		jmp FIM_HORAS
-
-	
-			
+		
 TRATA_HORAS_JOGO ENDP
-
-
-;********************************************************************************
-; TEMPO - Analisa a data do sistema e coloca numa string com a forma DD/MM/AAAA
-; CX - Ano | DH - Mês | DL - Dia
-
-
-   TEMPO proc
-        push      ax
-		push      bx
-		push      cx
-		push      dx
-		push      si
-		pushf
-		mov       ah, 2ah   ; Procurar a data
-		int       21h
-		push      cx        ; Ano -> Pilha
-		xor       cx, cx    ; Limpar CX
-		mov       cl, dl    ; Mês = CL
-		push      cx        ; Mês -> Pilha
-		mov       cl, dl    ; Dia = CL
-		push      cx        ; Dia -> Pilha
-		xor       dh, dh
-		xor       si, si
-		
-		
-; Tratamento do DIA:
-
-
-        xor       dx, dx    ; Limpa DX
-		pop       ax        ; Tirar dia da pilha
-		mov       cx, 0
-		mov       bx, 10
-		mov       cx, 2
-		
-		
-	DIVISOR_DIA:
-	    div       bx        ; Divide por 10
-		push      dx
-		mov       dx, 0
-		loop      DIVISOR_DIA
-		mov       cx, 2
-		
-		
-	RESTO_DIA: 
-	    pop       dx                         ; Resto da divisão
-		add       dl, 30h
-		mov       Dia_Mes_Ano[si], dl
-		inc       si
-		loop      RESTO_DIA
-		mov       dl, '/'                    ; Separador
-		mov       Dia_Mes_Ano[si], dl
-		inc       si
-		
-		
-; Tratamento do MÊS
-
-
-        mov       dx, 0
-		pop       ax
-		xor       cx, cx
-		mov       bx, 10
-		mov       cx, 2
-		
-		
-	DIVISOR_MES:
-	    div       bx
-		push      dx
-		mov       dx, 0
-		loop      DIVISOR_MES
-		mov       cx, 2
-		
-		
-	RESTO_MES:
-	    pop       dx
-		add       dl, 30h
-		mov       Dia_Mes_Ano[si], dl
-		inc       si
-		loop      RESTO_MES
-		mov       dl, '/'
-		mov       Dia_Mes_Ano[si], dl
-		inc       si
-		
-		
-; Tratamento do ANO
-
-
-        mov       dx, 0
-		pop       ax
-		mov       cx, 0
-		mov       bx, 10
-		
-		
-	DIVISOR_ANO:
-	    div       bx
-		push      dx
-		add       cx, 1
-		mov       dx, 0
-		cmp       ax, 0
-		jne       DIVISOR_ANO
-		
-		
-	RESTO_ANO:
-	    pop       dx
-		add       dl, 30h
-		mov       Dia_Mes_Ano[si], dl
-		inc       si
-		loop      RESTO_ANO
-		popf
-		pop       si
-		pop       dx
-		pop       cx
-		pop       bx
-		pop       ax
-		ret
-		
-		
-	TEMPO endp
 
 
 ;********************************************************************************
@@ -922,13 +764,11 @@ TRATA_HORAS_JOGO ENDP
 		jbe  MINIMO_PONTOS
 		sub  pontuacao, 1
 		
-	
 	MINIMO_PONTOS:
 	    goto_xy  POSpontosx, POSpontosy
 		mov      ax, pontuacao
 		call     PRINTDIGIT
 		ret
-		
 		
 	MOVER_PONTOS endp
 
@@ -957,10 +797,8 @@ TRATA_HORAS_JOGO ENDP
 		int		21h
 		mov		ah,1
     
-	
 	SAI_TECLA:		RET
     
-	
 	LE_TECLA	endp
 
 				
@@ -969,7 +807,6 @@ TRATA_HORAS_JOGO ENDP
 
 
     assinala_P	PROC
-
 
     CICLO_assinala:	
 		; goto_xy	POSxa,POSya	; Vai para a posição anterior do cursor
@@ -985,7 +822,6 @@ TRATA_HORAS_JOGO ENDP
 		mov		Cor, ah		; Guarda a cor que está na posição do Cursor
 		goto_xy	POSx,POSy	; Vai para posição do cursor
 		
-		
     IMPRIME:	
 		; mov		ah, 02h
 		; mov		dl, 190		; Coloca AVATAR
@@ -996,7 +832,6 @@ TRATA_HORAS_JOGO ENDP
 		; mov		POSxa, al
 		; mov		al, POSy	; Guarda a posição do cursor
 		; mov 	POSya, al
-		
 		
     LER_SETA:		
 		xor si, si
@@ -1009,20 +844,17 @@ TRATA_HORAS_JOGO ENDP
 		je		ASSINALA
 		jmp		LER_SETA
 		
-		
     ESTEND:	
 	    cmp 	al,48h
 		jne		BAIXO
 		dec		POSy		;cima
 		jmp		CICLO_assinala
 
-
     BAIXO:	 
 	    cmp		al,50h
 		jne		ESQUERDA
 		inc 	POSy		;Baixo
 		jmp		CICLO_assinala
-
 
     ESQUERDA:
 		cmp		al,4Bh
@@ -1031,7 +863,6 @@ TRATA_HORAS_JOGO ENDP
 		dec		POSx		;Esquerda
 		jmp		CICLO_assinala
 		
-
     DIREITA:
 		cmp		al,4Dh
 		jne		LER_SETA 
@@ -1044,15 +875,12 @@ TRATA_HORAS_JOGO ENDP
 				; AL = ASCII character to write
 				; BH = display page  (or mode 13h, background pixel value)
 				; BL = character attribute (text) foreground color (graphics)
-				; CX = count of characters to write (CX >= 1)
-				
+				; CX = count of characters to write (CX >= 1)		
 				
     ASSINALA:
 		call ADICIONA_LETRA
 		goto_xy POSy, POSx
 		jmp		CICLO_assinala
-    
-	    
 	
 	assinala_P	endp
 	
@@ -1079,18 +907,14 @@ TRATA_HORAS_JOGO ENDP
 	    je      LEAVE1
 	    jmp     FIM_JOGO_PERDIDO
 
-
     TOP10x:
 	call ADICIONAR_TOP10
     
-	
 	PLAY_AGAIN:
 	call MAIN
 
-
     LEAVE1:
 	call END_GAME
- 
  
     GAME_OVER endp
         
@@ -1102,19 +926,14 @@ TRATA_HORAS_JOGO ENDP
 	       mov    bx,0
 		   mov    cx,10
 	
-	
 	RESET_PLAYER:
 	       mov     Nome_Jogador[bx],' '
 		   inc     bx
 		   loop    RESET_PLAYER
 		   ret
-		  
-		  
+		  	  
 	RESETARJOGADOR endp
 
-		   
-
-	
 
 ;********************************************************************************
 
@@ -1128,7 +947,6 @@ TRATA_HORAS_JOGO ENDP
 		int		21h
 		jmp		fim_EXPORTARMATRIX
 	
-	
     escrever:
 		mov		bx, ax				; Coloca em BX o Handle
     	mov		ah, 40h				; indica que é para escrever
@@ -1140,7 +958,6 @@ TRATA_HORAS_JOGO ENDP
 		lea		dx, msgErrorWrite
 		int		21h
 		
-		
     fechar:
 		mov		ah,3eh				; fecha o ficheiro
 		int		21h
@@ -1149,10 +966,8 @@ TRATA_HORAS_JOGO ENDP
 		lea		dx, msgErrorClose
 		int		21h
 		
-		
     fim_EXPORTARMATRIX:
 		ret
-
 
     EXPORTARMATRIX endp
 
@@ -1169,7 +984,6 @@ TRATA_HORAS_JOGO ENDP
 	      mov   extrair_pont,0
 	      add   displacement,19			
 	      mov   si,displacement
-
 
     BOM:
 	      goto_xy 0,0
@@ -1189,13 +1003,11 @@ TRATA_HORAS_JOGO ENDP
 	      mov	  di,ax
 	      jmp	  BOM
 
-
     EM:
 	     sub   displacement,19		
      	 pop   si
 	     ret
     
-	
 	EXTRAIR_NUMERO endp
 	
 
@@ -1208,7 +1020,6 @@ TRATA_HORAS_JOGO ENDP
 	    cmp ax,0			; Verifica se tem 0
 	    je	SAIDA1_PRINTDIGIT
 		
-		
     PART1_PRINTDIGIT:
     	cmp ax,0		; Verifica se ax = 0
         je PRINT1_PRINTDIGIT
@@ -1218,7 +1029,6 @@ TRATA_HORAS_JOGO ENDP
         inc cx 			; Incrementar o contador 
         xor dx,dx		; Colocar dx a zeros
         jmp PART1_PRINTDIGIT
-		
 		
     PRINT1_PRINTDIGIT:
         cmp cx,0		; Verificar se cx = 0
@@ -1230,19 +1040,16 @@ TRATA_HORAS_JOGO ENDP
         dec cx			
         jmp PRINT1_PRINTDIGIT
 
-
     SAIDA1_PRINTDIGIT:
 		mov dx,'0'
 		mov ah,02h
         int 21h
 
-		
     SAIDA_PRINTDIGIT:
 		mov dx,' '
 		mov ah,02h		; para dar print de um espaço no fim caso fique com menos um digito
         int 21h
 		RET
-
 
     PRINTDIGIT ENDP
 
@@ -1255,8 +1062,7 @@ TRATA_HORAS_JOGO ENDP
         mov   dx,0
 	    cmp   ax,0			
 	    je	  SAIDA1
-		
-		
+			
     PART1:
     	cmp   ax,0		
         je    PRINT1
@@ -1267,7 +1073,6 @@ TRATA_HORAS_JOGO ENDP
         inc   cx 			
         xor   dx,dx		
         jmp   PART1
-		
 		
     PRINT1:
         cmp    cx,0		
@@ -1281,19 +1086,16 @@ TRATA_HORAS_JOGO ENDP
         dec    cx			
         jmp    PRINT1
 
-
     SAIDA1:
 		mov dx,'0'
 		mov ah,02h
         int 21h
 
-		
     SAIDA:
 		mov dx,' '
 		mov ah,02h		
         int 21h
 		RET
-
 
     PRINTDIGITPLUS ENDP
 	
@@ -1319,7 +1121,6 @@ TRATA_HORAS_JOGO ENDP
 	      mov cx,10					
 	      mov bx,displacement			
 
-
     res_player:						
 	      mov       buffer[bx+si],' '		
 	      inc       si						
@@ -1330,12 +1131,10 @@ TRATA_HORAS_JOGO ENDP
 	      mov       POSxplayer,29
 	      mov       POSyplayer,10
 
-
     jogador:
 	     goto_xy   POSxplayer ,POSyplayer 
 	     mov       ah,07h
   	     int       21h
-
 
     ciclo_NPLAYER:	
 		 CMP 	AL, 27	; ESCAPE
@@ -1347,8 +1146,6 @@ TRATA_HORAS_JOGO ENDP
 	     cmp    al,'Z'
 	     ja     jogador
 	     jmp    letra
-		 
-
 
     letra:
 	     mov    nomeplayerText[si],al
@@ -1359,17 +1156,14 @@ TRATA_HORAS_JOGO ENDP
 	     je     sos
 	     jmp    nic
 
-
     nic:
 	     goto_xy    29 ,10
 	     mostra     nomeplayerTEXT
 	     inc        POSxplayer
 	     jmp        NPLAYER
 
-
     sos:
 	     RET
-		 
 		 
     NPLAYER endp
 	
