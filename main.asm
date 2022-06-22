@@ -42,6 +42,8 @@ dseg SEGMENT PARA 'DATA'
 	timer			dw 	    0				; Contador de tempo
 	Horas			dw		0				; Guarda a hora atual
 	Minutos			dw		0				; Guarda os minutos actuais
+	MinutosInicial			dw		0			
+	SegundosInicial			dw		0					
 	Segundos		dw		0				; Guarda os segundos actuais
 	Dia_Mes_Ano     db      "              "
 	Old_seg			dw		0				; Guarda os ultimos segundos que foram lidos
@@ -139,6 +141,7 @@ dseg SEGMENT PARA 'DATA'
 	percorre	db	0
 	jogo	db	0
 	palavraCerta	db	0
+	palavraIncorreta	db	0
 	modoJogo	db	0
  	
 	
@@ -151,117 +154,91 @@ cseg segment para public 'code'
 	ADICIONA_LETRA proc
 		mov 	ah, 08h
 		mov		bh,0		; numero da página
-		int		10h		
-		;mov		palavra[pos], al
-		inc 	pos
-	;	call VERIFICA_PALAVRA
+		int		10h
+		mov		palavra[di], al
+		call VERIFICA_PALAVRA
 		ret
 	
 	ADICIONA_LETRA endp
 	
-	
-	;VERIFICA_PALAVRA proc
-	;	mov percorre, 0
-		;lea esi, [palavra]
-		;mov ecx, 5  ; selects the length of the first string as maximum for comparison
-	;	cmp jogo, 2
-	;	je VERIFICA_PALAVRA_A
+	VERIFICA_PALAVRA proc
+		cmp jogo, 2
+		je VERIFICA_PALAVRA_A
 		
-	;	VERIFICA_PALAVRA_B:
-	;		lea edi, [String_Palavra1]
-	;		mov ecx, 5  ; selects the length of the first string as maximum for comparison
-	;		rep cmpsb         ; comparison of ECX number of bytes~
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra2]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra3]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra4]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra5]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra6]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra7]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra8]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		ret
+		VERIFICA_PALAVRA_B:
+			cmp String_Palavra1[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra2[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra3[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra4[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra5[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra6[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra7[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra8[di], al
+			je PALAVRA_CERTA
+			jmp PALAVRA_INCORRETA
 		
+		VERIFICA_PALAVRA_A:
+			cmp String_Palavra9[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra10[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra11[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra12[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra13[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra14[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra15[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra16[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra17[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra18[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra19[di], al
+			je PALAVRA_CERTA
+			cmp String_Palavra20[di], al
+			je PALAVRA_CERTA
+			jmp PALAVRA_INCORRETA
+			
+		PALAVRA_CERTA:
+			inc palavraCerta
+			inc di
+			mov		cor, 17
+			mov bl, 17
+			mov 	ah, 09h
+			mov		al, car
+			mov		bh, 0
+			mov		cx, 1
+			int		10h
+			call ADICIONARPONTOS
+			ret			
+			
+		PALAVRA_INCORRETA:
+			xor di, di
+			mov		bl, cor
+			not		bl
+			mov		cor, bl
+			mov 	ah, 09h
+			mov		al, car
+			mov		bh, 0
+			mov		cx, 1
+			int		10h
+			inc palavraIncorreta
+			ret
 		
-	;	VERIFICA_PALAVRA_A:
-	;		lea edi, [String_Palavra9]
-	;		rep cmpsb         ; comparison of ECX number of bytes~
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra10]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra11]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra12]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra13]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra14]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra15]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra16]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra17]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra18]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra19]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		lea edi, [String_Palavra20]
-	;		rep cmpsb
-	;		je PALAVRA_CERTA
-	;		ret
-		
-	;	PALAVRA_CERTA:
-	;		inc palavraCerta
-			; PALAVRA CERTA ESTÁ NO EDI
-	;		mov 	ah, 08h
-	;		int		10h
-	;		call ADICIONARPONTOS
-	;		call MOVER_PONTOS
-	;		ret
-		
-		
-	;VERIFICA_PALAVRA endp
-	
-	;MAIN PROC FAR
-	;
-	;	MOV AH,00h	;set the configuration to video mode		
-	;	MOV AL,13h	;choose the video mode
-	;	INT 10h		;execute the configuration
-	;	
-	;	MOV AH,0Bh	;set the configuration
-	;	MOV BH,00h	;to the background color
-	;	MOV BL,00h	;choose the backgroung color
-	;	INT 10h		;execute the configuration
-	;	
-	;	
-	;	RET
-	;MAIN ENDP
-	
+	VERIFICA_PALAVRA endp
+
 	
 ;********************************************************************************
 ; GOTO_XY - MOVE A POSICAO DO CURSOR
@@ -473,6 +450,7 @@ cseg segment para public 'code'
 		mov modoJogo, 0
 	    call APAGA_ECRAN
 		goto_xy		0,0
+		xor	di, di
 		lea			dx,FichMenu      	; Carregar para dx o ficheiro que queremos imprimir
 		call		IMP_FICH  			; Imprimir o ficheiro
 
@@ -530,6 +508,11 @@ cseg segment para public 'code'
 		mov Minutos, 0 ; iniciou o jogo
 		mov Segundos, 0 ; iniciou o jogo
 		mov modoJogo, 1
+		call LER_TEMPO
+		mov AX, Minutos
+		mov MinutosInicial, AX
+		mov AX, Segundos
+		mov SegundosInicial, AX
 		call LER_SETA
 		call APAGA_ECRAN
 		call WINNER
@@ -556,6 +539,12 @@ cseg segment para public 'code'
 		mov Horas, 0 ; iniciou o jogo
 		mov Minutos, 0 ; iniciou o jogo
 		mov Segundos, 0 ; iniciou o jogo
+		mov modoJogo, 2
+		call LER_TEMPO
+		mov AX, Minutos
+		mov MinutosInicial, AX
+		mov AX, Segundos
+		mov SegundosInicial, AX
 		call LER_SETA
 		call APAGA_ECRAN
 		call WINNER
@@ -630,8 +619,8 @@ cseg segment para public 'code'
 
 
     ADICIONARPONTOS proc
-	    goto_xy     POSpontosx,POSpontosy
-		add         pontuacao, 750
+	    goto_xy     0,8
+		add         pontuacao, 10
 		mov         ax, pontuacao
 		call        PRINTDIGIT
 		ret
@@ -727,9 +716,33 @@ TRATA_HORAS_JOGO PROC
 	;je		FIM_HORAS			; Se a hora não mudou desde a última leitura sai.
 	mov		Old_seg, AX			; Se segundos são diferentes actualiza informação do tempo
 
-	inc Segundos
+	mov      ax, Minutos          ; Load number1 in al  
+      mov      bx, MinutosInicial          ; Load number2 in bl  
+      sub      ax, bx  
+	  mov		Minutos, ax
+	  mov      ax, Segundos          ; Load number1 in al  
+      mov      bx, SegundosInicial          ; Load number2 in bl
+	  cmp		ax, bx
+	  jb		segundos2  
+      sub      ax, bx  
+	  mov		Segundos, ax
+	  jmp NEXT
+	  
+	segundos2:
+	   mov	ax, 60
+	   sub ax, bx
+	   mov      ax, Segundos
+	   add	bx, ax
+	  mov		Segundos, bx
+	  mov      ax, Minutos
+	  sub	ax, 1
+	  mov Minutos, ax
+	  jmp NEXT
+	
+	NEXT:
+		inc Segundos
 	cmp Segundos, 60
-	jne CONTINUA
+	jb CONTINUA
 	mov Segundos, 0
 	inc Minutos
 	cmp Minutos, 60
@@ -738,8 +751,8 @@ TRATA_HORAS_JOGO PROC
 	inc Horas
 	cmp Horas, 24
 	jne CONTINUA
-	mov Horas, 0 
-	jmp CONTINUA
+	mov Horas, 0
+	JMP CONTINUA
 	
 	FIM_HORAS:		
 		POPF
@@ -747,6 +760,7 @@ TRATA_HORAS_JOGO PROC
 		POP CX
 		POP BX
 		POP AX
+		;call WINNER
 		RET	
 	
 	CONTINUA:		
@@ -759,7 +773,7 @@ TRATA_HORAS_JOGO PROC
 		MOV 	STR12[1],ah
 		MOV 	STR12[2],':'		
 		MOV 	STR12[3],'$'
-		goto_xy	16,58
+		goto_xy	2,66
 		MOSTRA	STR12 		
 		
 		mov 	ax,Segundos
@@ -770,7 +784,7 @@ TRATA_HORAS_JOGO PROC
 		MOV 	STR12[0],al			; 
 		MOV 	STR12[1],ah
 		MOV 	STR12[2],'$'	
-		goto_xy	16, 62
+		goto_xy	2, 70
 		MOSTRA	STR12 			
 			
 		goto_xy	POSy,POSx			; Volta a colocar o cursor onde estava antes de actualizar as horas
@@ -969,10 +983,6 @@ TRATA_HORAS_JOGO ENDP
 		int		10h		
 		mov		Car, al		; Guarda o Caracter que está na posição do Cursor
 		mov		Cor, ah		; Guarda a cor que está na posição do Cursor
-		goto_xy	78,0		; Mostra o caractereque estava na posição do AVATAR
-		mov		ah, 02h		; IMPRIME caracter da posição no canto
-		mov		dl, Car	
-		int		21H			
 		goto_xy	POSx,POSy	; Vai para posição do cursor
 		
 		
@@ -997,8 +1007,6 @@ TRATA_HORAS_JOGO ENDP
 		JE		GAME_OVER
 		CMP		AL, 13
 		je		ASSINALA
-		CMP		AL, 32 ; SPACE
-		je		DESASSINALA
 		jmp		LER_SETA
 		
 		
@@ -1041,22 +1049,9 @@ TRATA_HORAS_JOGO ENDP
 				
     ASSINALA:
 		call ADICIONA_LETRA
-		mov		bl, cor
-		not		bl
-		mov		cor, bl
-		mov 	ah, 09h
-		mov		al, car
-		mov		bh, 0
-		mov		cx, 1
-		int		10h
+		goto_xy POSy, POSx
 		jmp		CICLO_assinala
     
-	DESASSINALA:
-		mov palavra[si], " "
-		inc si
-		cmp si, 12
-		jne DESASSINALA
-		ret
 	    
 	
 	assinala_P	endp
