@@ -297,63 +297,6 @@ cseg segment para public 'code'
 
 	; FIM DAS MACROS
 	
-		
-	LE_MENU	proc
-		mov     ah,3dh					; vamos abrir ficheiro para leitura 
-		mov     al,0					; tipo de ficheiro	
-		lea     dx,FichMenu				; nome do ficheiro
-		int     21h						; abre para leitura 
-		jc      ERRO_ABRIR_MENU				; pode aconter erro a abrir o ficheiro 
-		mov     handleFich,ax			; ax devolve o Handle para o ficheiro 
-		jmp     LER_CICLO_MENU				; depois de abero vamos ler o ficheiro 
-		
-
-	ERRO_ABRIR_MENU:
-		mov     ah,09h
-		lea     dx,msgErrorOpen
-		int     21h
-		jmp     SAI
-		
-
-	LER_CICLO_MENU:
-		mov     ah,3fh				; indica que vai ser lido um ficheiro 
-		mov     bx,handleFich		; bx deve conter o Handle do ficheiro previamente aberto 
-		mov     cx,1				; nomeJogador de bytes a ler 
-		lea     dx,carFich			; vai ler para o local de memoria apontado por dx (carFich)
-		int     21h					; faz efectivamente a leitura
-		jc	    ERRO_LER_MENU			; se carry � porque aconteceu um erro
-		cmp	    ax,0				;EOF?	verifica se j� estamos no fim do ficheiro 
-		je	    FECHA_FICHEIRO_MENU		; se EOF fecha o ficheiro 
-		mov     ah,02h				; coloca o caracter no ecran
-		mov	    dl,carFich			; este � o caracter a enviar para o ecran
-		int	    21h					; imprime no ecran
-		jmp	    LER_CICLO_MENU			; continua a ler o ficheiro
-
-
-	ERRO_LER_MENU:
-		mov     ah,09h
-		lea     dx,msgErrorRead
-		int     21h
-
-		FECHA_FICHEIRO_MENU:					; vamos fechar o ficheiro 
-		mov     ah,3eh
-		mov     bx,handleFich
-		int     21h
-		jnc     SAI
-
-		mov     ah,09h			; o ficheiro pode não fechar correctamente
-		lea     dx,msgErrorCloseRead
-		Int     21h
-		
-	SAI:
-		GOTO_XY POSy,POSx
-		ret
-		
-		
-	LE_MENU	endp
-		
-
-
 
 ;********************************************************************************
 
@@ -387,7 +330,7 @@ cseg segment para public 'code'
 	      call     EXTRAIR_NUMERO
 		  mov      ax,extrair_pont
 		  cmp      Pontuacao,ax
-		  jbe      PEQUENA_PONTUACAO2
+		  ;jbe      PEQUENA_PONTUACAO2
 		  call     NPLAYER
 		  lea      bx,buffer
 		  mov      ax,Pontuacao
@@ -633,10 +576,9 @@ cseg segment para public 'code'
 	    goto_xy	0,0   				;apaga o ecra a partir do 0 0
         lea  	dx,Player_Won   	;carregar para dx o ficheiro que queremos imprimir
         call 	IMP_FICH   			;imprimir o ficheiro
-        goto_xy 45,22				; print da pontuacao
+		goto_xy 23,68				; print da pontuacao
 	    mov		ax,Pontuacao
 	    call 	PRINTDIGIT
-	    goto_xy 70,22				; print do nivel
 	    mov 	ah, 07h 			; Espera para que o utilizador insira um caracter
   	    int 	21h					
 	    cmp     al,'1'
@@ -712,10 +654,14 @@ TRATA_HORAS_JOGO PROC
 	jb CONTINUA
 	mov Segundos, 0
 	inc Minutos
-	cmp Minutos, 60
+	cmp Minutos, 02
 	jne CONTINUA
 	mov Minutos, 0
-	JMP CONTINUA
+	JMP ACABA_JOGO
+	
+	ACABA_JOGO:
+		call Winner
+		ret
 	
 	FIM_HORAS:		
 		POPF
@@ -753,24 +699,6 @@ TRATA_HORAS_JOGO PROC
 		jmp FIM_HORAS
 		
 TRATA_HORAS_JOGO ENDP
-
-
-;********************************************************************************
-; MOVER_PONTOS - Substituir pontos no jogo
-
-
-    MOVER_PONTOS proc 
-	    cmp  pontuacao, 15
-		jbe  MINIMO_PONTOS
-		sub  pontuacao, 1
-		
-	MINIMO_PONTOS:
-	    goto_xy  POSpontosx, POSpontosy
-		mov      ax, pontuacao
-		call     PRINTDIGIT
-		ret
-		
-	MOVER_PONTOS endp
 
 
 ;********************************************************************************
@@ -822,16 +750,6 @@ TRATA_HORAS_JOGO ENDP
 		mov		Cor, ah		; Guarda a cor que está na posição do Cursor
 		goto_xy	POSx,POSy	; Vai para posição do cursor
 		
-    IMPRIME:	
-		; mov		ah, 02h
-		; mov		dl, 190		; Coloca AVATAR
-		; int		21H	
-		; goto_xy	POSx,POSy	; Vai para posição do cursor
-		
-		; mov		al, POSx	; Guarda a posição do cursor	
-		; mov		POSxa, al
-		; mov		al, POSy	; Guarda a posição do cursor
-		; mov 	POSya, al
 		
     LER_SETA:		
 		xor si, si
@@ -1138,7 +1056,7 @@ TRATA_HORAS_JOGO ENDP
 
     ciclo_NPLAYER:	
 		 CMP 	AL, 27	; ESCAPE
-		 JE		main
+		 call	Menu_Inicial
 	     cmp    al ,0DH
 	     je     sos
 	     cmp    al,'A'
